@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>From Google Sheet to table and chart · wpDataTables + AI assistant</title>
+<style>
+:root{--bg:#f6f7fb;--ink:#0f172a;--muted:#64748b;--line:#e5e9f0;--accent:#2563eb;--violet:#7c3aed;--ok:#059669;--bad:#dc2626;--r:14px;
+--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;height:100%}body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--font);display:flex;flex-direction:column}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 22px;background:#fff;border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:10px;align-items:center;font-weight:700}.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;background:linear-gradient(135deg,#10b981,#2563eb)}
+.conn{display:inline-flex;gap:6px;align-items:center;font-size:12px;font-weight:600;color:#047857;background:#ecfdf5;padding:4px 10px;border-radius:999px}.conn i{width:7px;height:7px;border-radius:50%;background:#10b981}
+.demo{font-size:12px;color:var(--muted)}
+.app{flex:1;display:grid;grid-template-columns:minmax(380px,0.9fr) 1.1fr;min-height:0}
+.chat{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line);background:#fff}
+.msgs{flex:1;overflow:auto;padding:22px 22px 8px;display:flex;flex-direction:column;gap:14px}
+.m{display:flex;gap:10px;max-width:100%;animation:in .25s ease}@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.m .who{width:28px;height:28px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#10b981,#2563eb)}
+.m.user{justify-content:flex-end}.m.user .b{background:#2563eb;color:#fff;border-radius:16px 16px 4px 16px;padding:10px 14px;max-width:80%;word-break:break-word}
+.m.bot .b{background:#f4f6fa;border-radius:4px 16px 16px 16px;padding:12px 14px;max-width:calc(100% - 40px)}
+.b p{margin:0 0 6px}.b p:last-child{margin:0}.b ul{margin:4px 0 6px;padding-left:18px}
+.typing{display:inline-flex;gap:4px;padding:4px 0}.typing span{width:7px;height:7px;border-radius:50%;background:#94a3b8;animation:bl 1s infinite}.typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}@keyframes bl{0%,100%{opacity:.3}50%{opacity:1}}
+.prop{background:#fff;border:1px solid var(--line);border-radius:12px;margin-top:8px;overflow:hidden}
+.prop .ph{padding:8px 12px;font-size:12px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+.prop table{width:100%;border-collapse:collapse;font-size:12.5px}.prop td,.prop th{padding:6px 10px;text-align:left;border-bottom:1px solid #f1f5f9}.prop th{color:var(--muted);font-weight:600}
+.ask{margin-top:10px;border:1px solid #c7d2fe;background:linear-gradient(180deg,#f5f7ff,#fff);border-radius:12px;padding:12px}
+.ask .t{display:flex;gap:8px;align-items:center;font-weight:700;color:#3730a3;font-size:13px}.ask .t .badge{background:#e0e7ff;color:#3730a3;padding:2px 8px;border-radius:999px;font-size:11px;letter-spacing:.03em;text-transform:uppercase}
+.ask ul{margin:8px 0;padding-left:18px;color:#334155;font-size:13px}
+.ask .btns{display:flex;gap:8px}.btn{border:0;border-radius:9px;padding:8px 16px;font-weight:600}.btn.p{background:#2563eb;color:#fff}.btn.p:hover{background:#1d4ed8}.btn.s{background:#fff;border:1px solid var(--line)}.btn:disabled{opacity:.5;cursor:default}
+.ask.done .btns{display:none}.ask .res{display:none;font-size:12.5px;font-weight:600;margin-top:4px}.ask.done .res{display:block}.ask.ok .res{color:var(--ok)}.ask.no .res{color:var(--muted)}
+.steps{list-style:none;padding:0;margin:6px 0}.steps li{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}.steps li.d{color:var(--ink)}.steps li .c{width:16px;text-align:center}
+.undo{margin-top:8px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 12px;font-weight:600;font-size:12.5px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 22px 10px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:500;display:flex;gap:6px;align-items:center;transition:.15s}.chip:hover{border-color:#a5b4fc;background:#f5f7ff}
+.chip.hl{border-color:#a5b4fc;background:#eef2ff;color:#3730a3}
+.composer{padding:10px 22px 18px}.cbox{display:flex;gap:8px;border:1px solid var(--line);border-radius:14px;padding:6px 6px 6px 14px;background:#fff;box-shadow:0 4px 18px rgba(15,23,42,.06)}
+.cbox input{flex:1;border:0;outline:0;min-width:0}.send{border:0;background:#0f172a;color:#fff;border-radius:10px;width:38px;height:38px;font-size:16px}
+.note{font-size:11.5px;color:var(--muted);text-align:center;margin-top:6px}
+/* site panel */
+.site{overflow:auto;padding:20px 24px;min-height:0}
+.wpbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}.wpbar .wp{width:26px;height:26px;border-radius:50%;background:#1d2327;color:#fff;display:grid;place-items:center;font-family:Georgia,serif;font-weight:800;font-size:13px}
+.wpbar b{font-size:15px}.wpbar span{font-size:12px;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:0 6px 24px rgba(15,23,42,.05)}
+.empty{padding:60px 30px;text-align:center;color:var(--muted)}.empty .big{font-size:40px;opacity:.6}
+.preview-tag{display:inline-block;background:#fffbeb;color:#b45309;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
+.created-tag{display:inline-block;background:#ecfdf5;color:#047857;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
+.ch{padding:16px 18px 4px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.ch h3{margin:0;font-size:15px}
+.dim{opacity:.55;filter:saturate(.6)}
+.legend{display:flex;gap:14px;font-size:12px;color:#475569;padding:0 18px}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.tools{display:flex;gap:10px;align-items:center;padding:4px 18px 10px}.tools label{font-size:12px;color:var(--muted);font-weight:600}
+.tools select{height:32px;border:1px solid var(--line);border-radius:8px;padding:0 8px;background:#fff}
+.tw{max-height:380px;overflow:auto}
+table.dt{width:100%;border-collapse:collapse;font-size:13px}table.dt th{position:sticky;top:0;background:#f8fafc;text-align:left;padding:9px 14px;color:#475569;font-weight:600;cursor:pointer;user-select:none;border-bottom:1px solid var(--line);white-space:nowrap}
+table.dt th .ar{opacity:.35;margin-left:4px}table.dt th.s .ar{opacity:1;color:var(--accent)}
+table.dt td{padding:8px 14px;border-bottom:1px solid #f1f5f9;font-variant-numeric:tabular-nums;white-space:nowrap}table.dt tr:hover td{background:#f8fafc}
+.num{text-align:right!important}.neg{color:var(--bad);font-weight:600}.pos{color:var(--ok)}
+.newcol{animation:nc 1.8s}@keyframes nc{0%{background:#ede9fe}100%{background:transparent}}
+.log{margin-top:14px;padding:12px 16px}.log h4{margin:0 0 6px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.log div{font-size:12.5px;padding:3px 0;color:#334155}
+.tip{position:fixed;pointer-events:none;background:#0f172a;color:#fff;font-size:12px;padding:6px 9px;border-radius:8px;opacity:0;z-index:50;white-space:nowrap}
+.place{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-weight:600;font-size:12.5px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#0f172a;color:#fff;padding:11px 16px;border-radius:12px;opacity:0;transition:.25s;z-index:60;font-size:13px}.toast.show{opacity:1;transform:translateX(-50%)}
+@media(max-width:980px){.app{grid-template-columns:1fr}.chat{min-height:70vh}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><div class="av">AI</div>AI assistant <span class="conn"><i></i>Connected to your wpDataTables site</span></div>
+  <div class="demo">Interactive prototype · scripted replies · demo data only</div>
+</header>
+<div class="app">
+  <section class="chat" aria-label="Conversation">
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <div class="chips" id="chips"></div>
+    <form class="composer" id="form" autocomplete="off">
+      <div class="cbox"><input id="inp" placeholder="Paste a Google Sheets link or ask for a change…" aria-label="Message"><button class="send" aria-label="Send">↑</button></div>
+      <div class="note">Reading is free. Anything that changes your site asks first, and can be undone.</div>
+    </form>
+  </section>
+  <section class="site" aria-label="Your site">
+    <div class="wpbar"><div class="wp">W</div><div><b>Demo site · wpDataTables</b><br><span>What the assistant creates appears here, as normal wpDataTables tables and charts</span></div></div>
+    <div id="stage"></div>
+    <div class="card log" id="log" hidden><h4>Activity log</h4><div id="logItems"></div></div>
+  </section>
+</div>
+<div class="tip" id="tip"></div><div class="toast" id="toast" role="status"></div>
+<script>
+(function(){'use strict';
+const $=s=>document.querySelector(s);const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* demo sheet: Acme Sales 2026 */
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const REGIONS=['North','South','East','West'];const COLORS={North:'#2563eb',South:'#7c3aed',East:'#0ea5e9',West:'#14b8a6'};
+let seed=42;const rnd=()=>{seed=(seed*1103515245+12345)%2147483648;return seed/2147483648};
+const BASE={North:52000,South:38000,East:44000,West:30000};
+const rows=[];MONTHS.forEach((m,mi)=>REGIONS.forEach(r=>{const s=1+.18*Math.sin((mi+1)/12*Math.PI*2);const r25=Math.round(BASE[r]*s*(0.9+rnd()*.2)/10)*10;
+  const g=(r==='West'&&mi>=5&&mi<=8)||(r==='South'&&(mi===1||mi===2))||(r==='East'&&mi===10)?-(0.03+rnd()*.12):0.02+rnd()*.2;
+  rows.push({month:m,mi,region:r,r25,r26:Math.round(r25*(1+g)/10)*10})}));
+const negCount=rows.filter(r=>r.r26<r.r25).length;
+const money=v=>'$'+new Intl.NumberFormat('en-US').format(v);const k=v=>'$'+(v/1000).toFixed(0)+'K';
+const S={step:'start',created:false,yoy:false,region:'',sort:{k:'mi',dir:1},log:[]};
+/* chat helpers */
+const msgs=$('#msgs');
+function add(role,html){const d=document.createElement('div');d.className='m '+role;d.innerHTML=(role==='bot'?'<div class="who">AI</div>':'')+'<div class="b">'+html+'</div>';msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}
+function typing(ms){return new Promise(res=>{const d=add('bot','<span class="typing"><span></span><span></span><span></span></span>');setTimeout(()=>{d.remove();res()},ms)})}
+function chips(list){const c=$('#chips');c.innerHTML='';list.forEach(([label,fn,hl])=>{const b=document.createElement('button');b.type='button';b.className='chip'+(hl?' hl':'');b.innerHTML=label;b.addEventListener('click',fn);c.appendChild(b)});requestAnimationFrame(()=>{msgs.scrollTop=msgs.scrollHeight})}
+function askCard(title,items,onYes,onNo){const id='a'+Math.random().toString(36).slice(2,7);
+  const h='<div class="ask" id="'+id+'"><div class="t"><span class="badge">Ask first</span>'+title+'</div><ul>'+items.map(i=>'<li>'+i+'</li>').join('')+'</ul><div class="btns"><button class="btn p" data-y>Confirm</button><button class="btn s" data-n>Cancel</button></div><div class="res"></div></div>';
+  return {html:h,bind(){const el=document.getElementById(id);el.querySelector('[data-y]').addEventListener('click',()=>{el.classList.add('done','ok');el.querySelector('.res').textContent='✓ Confirmed';onYes()});
+   el.querySelector('[data-n]').addEventListener('click',()=>{el.classList.add('done','no');el.querySelector('.res').textContent='Cancelled · nothing was changed';onNo()})}}}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2400)}
+function logIt(m){S.log.unshift(m);$('#log').hidden=false;$('#logItems').innerHTML=S.log.map(x=>'<div>'+x+'</div>').join('')}
+/* flow */
+const SHEET_URL='https://docs.google.com/spreadsheets/d/acme-sales-2026-demo/edit';
+async function start(){add('bot','<p><b>Hi!</b> I\'m connected to your wpDataTables site, so I can read your tables and, after you confirm, create or change them.</p><p>Paste a Google Sheets link, or pick the demo sheet below.</p>');startChips()}
+function startChips(){chips([['📄 Use demo sheet: Acme Sales 2026',()=>userSays('Make a table and chart from my Google Sheet "Acme Sales 2026": '+SHEET_URL),true],['🔗 Paste demo link',()=>{$('#inp').value=SHEET_URL;$('#inp').focus()}]])}
+async function propose(){S.step='proposed';chips([]);await typing(900);
+  const prev=rows.slice(0,5).map(r=>'<tr><td>'+r.month+'</td><td>'+r.region+'</td><td class="num">'+money(r.r25)+'</td><td class="num">'+money(r.r26)+'</td></tr>').join('');
+  const a=askCard('Create on your site?',['Table <b>Acme Sales 2026</b>: 48 rows, a region filter, sortable columns, amounts in US dollars','Stacked column chart <b>Revenue 2026 by month and region</b>, following the table filter','Weekly refresh from the sheet. Nothing is shown publicly until you place it on a page'],confirmCreate,cancelCreate);
+  add('bot','<p>I opened <b>Acme Sales 2026</b>: one sheet, 48 rows, with Month, Region, Revenue 2025 and Revenue 2026. Everything looks clean, no fixes needed.</p><p>Here\'s what I propose:</p><div class="prop"><div class="ph"><span>Proposed table · first 5 of 48 rows</span><span>Preview</span></div><table><thead><tr><th>Month</th><th>Region</th><th class="num">Revenue 2025</th><th class="num">Revenue 2026</th></tr></thead><tbody>'+prev+'</tbody></table></div>'+a.html);a.bind();
+  renderStage('preview')}
+async function cancelCreate(){S.step='start';renderStage('empty');await typing(500);add('bot','<p>No problem, nothing was created. Want me to propose it again, or change something first?</p>');
+  chips([['↻ Propose again',()=>userSays('Propose the table and chart again'),true]])}
+async function confirmCreate(){S.step='creating';await typing(400);
+  const d=add('bot','<p>Creating it now…</p><ul class="steps"><li><span class="c">○</span>Reading 48 rows from the sheet</li><li><span class="c">○</span>Creating the table with a region filter</li><li><span class="c">○</span>Creating the stacked column chart</li></ul>');
+  const lis=d.querySelectorAll('li');for(let i=0;i<lis.length;i++){await new Promise(r=>setTimeout(r,450));lis[i].classList.add('d');lis[i].querySelector('.c').textContent='✓'}
+  S.created=true;S.step='created';renderStage('live');logIt('Table "Acme Sales 2026" created · from Google Sheet');logIt('Chart "Revenue 2026 by month and region" created');
+  add('bot','<p><b>Done.</b> The table <b>Acme Sales 2026</b> and its chart are on your site and ready to place on a page. Try the region filter and click any column to sort.</p>');
+  chips([['✨ Add year-over-year growth and show negatives in red',()=>userSays('Add year-over-year growth and show negatives in red'),true],['📄 Place it on a new draft page',()=>userSays('Place it on a new draft page')]])}
+async function proposeYoy(){if(!S.created){await typing(500);add('bot','<p>Let\'s create the table first. Pick the demo sheet below.</p>');startChips();return}
+  if(S.yoy){await typing(500);add('bot','<p>The YoY growth column is already there. You can undo it from the message above.</p>');return}
+  chips([]);await typing(800);
+  const a=askCard('Change table "Acme Sales 2026"?',['Add a column <b>YoY growth</b>: the change from Revenue 2025 to Revenue 2026, as a percentage','Show negative growth in <b style="color:#dc2626">red</b> and positive growth in green',''+negCount+' of 48 rows would show in red'],confirmYoy,async()=>{await typing(400);add('bot','<p>Okay, I left the table as it is.</p>');yoyChips()});
+  add('bot','<p>Here\'s the change I\'d make:</p>'+a.html);a.bind()}
+function yoyChips(){chips([['✨ Add year-over-year growth and show negatives in red',()=>userSays('Add year-over-year growth and show negatives in red'),true],['📄 Place it on a new draft page',()=>userSays('Place it on a new draft page')]])}
+async function confirmYoy(){await typing(600);S.yoy=true;S.sort={k:'yoy',dir:1};renderStage('live',true);logIt('Column "YoY growth" added · negatives in red');
+  const d=add('bot','<p><b>Added.</b> The table now has a <b>YoY growth</b> column, sorted with the biggest drops first. '+negCount+' rows are negative and shown in red, mainly West over the summer and South in early spring.</p><button class="undo">↶ Undo</button>');
+  const u=d.querySelector('.undo');u.addEventListener('click',()=>{if(!S.yoy)return;S.yoy=false;if(S.sort.k==='yoy')S.sort={k:'mi',dir:1};renderStage('live');u.disabled=true;u.textContent='Undone';logIt('Undone: column "YoY growth" removed');toast('Change undone');
+    add('bot','<p>Undone. The table is back to how it was before the change.</p>');yoyChips()});
+  chips([['📄 Place it on a new draft page',()=>userSays('Place it on a new draft page'),true]])}
+async function placePage(){if(!S.created){await typing(400);add('bot','<p>There\'s nothing to place yet. Pick the demo sheet to start.</p>');startChips();return}
+  chips([]);await typing(700);const a=askCard('Create a draft page?',['New draft page <b>Acme Sales 2026</b> with the chart above the table','It stays a draft until you publish it'],async()=>{await typing(500);logIt('Draft page "Acme Sales 2026" created');add('bot','<p>Done. The draft page <b>Acme Sales 2026</b> is ready for you to review and publish.</p>');S.yoy?chips([]):yoyChips()},async()=>{await typing(300);add('bot','<p>Okay, no page was created.</p>');S.yoy?chips([]):yoyChips()});
+  add('bot','<p>I can put both on a new page for you.</p>'+a.html);a.bind()}
+async function userSays(t){add('user',esc(t));const l=t.toLowerCase();
+  if(/undo/.test(l)){const b=[...document.querySelectorAll('.undo:not(:disabled)')].pop();if(b){b.click();return}await typing(400);add('bot','<p>There\'s nothing to undo right now.</p>');return}
+  if(/growth|yoy|year/.test(l))return proposeYoy();
+  if(/page|place/.test(l))return placePage();
+  if(/sheet|docs\.google|acme|propose|table/.test(l)){if(S.created){await typing(500);add('bot','<p>The table <b>Acme Sales 2026</b> already exists on your site. Want to change it?</p>');return}return propose()}
+  await typing(500);add('bot','<p>This prototype uses scripted replies. Try one of the suggestions below.</p>')}
+$('#form').addEventListener('submit',e=>{e.preventDefault();const v=$('#inp').value.trim();if(!v)return;$('#inp').value='';userSays(v)});
+/* site panel */
+function sorted(){let r=rows.filter(x=>!S.region||x.region===S.region).map(x=>Object.assign({yoy:(x.r26-x.r25)/x.r25},x));const {k,dir}=S.sort;
+  return r.sort((a,b)=>{const A=a[k],B=b[k];return (A<B?-1:A>B?1:0)*dir||a.mi-b.mi})}
+function chart(isPreview){const W=640,H=250,P={l:52,r:12,t:12,b:28},iw=W-P.l-P.r,ih=H-P.t-P.b;const regs=S.region?[S.region]:REGIONS;
+  const tot=MONTHS.map((m,mi)=>regs.reduce((a,r)=>a+rows.find(x=>x.mi===mi&&x.region===r).r26,0));const max=Math.max(...tot)*1.1;const bw=iw/12*.62;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Stacked column chart of revenue 2026 by month and region">';
+  for(let i=0;i<=4;i++){const y=P.t+ih-ih*i/4;s+='<line x1="'+P.l+'" x2="'+(W-P.r)+'" y1="'+y+'" y2="'+y+'" stroke="#eef2f7"/><text x="'+(P.l-8)+'" y="'+(y+4)+'" font-size="11" text-anchor="end" fill="#94a3b8">'+k(max*i/4)+'</text>'}
+  MONTHS.forEach((m,mi)=>{const x=P.l+iw/12*mi+(iw/12-bw)/2;let y=P.t+ih;regs.forEach(r=>{const v=rows.find(z=>z.mi===mi&&z.region===r).r26;const h=v/max*ih;y-=h;
+    s+='<rect class="seg" data-t="'+m+' · '+r+': '+money(v)+'" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(0,h-1).toFixed(1)+'" rx="2" fill="'+COLORS[r]+'"/>'});
+    s+='<text x="'+(x+bw/2)+'" y="'+(H-8)+'" font-size="11" text-anchor="middle" fill="#94a3b8">'+m+'</text>'});
+  return s+'</svg>'}
+function renderStage(mode,flashCol){const st=$('#stage');
+  if(mode==='empty'){st.innerHTML='<div class="card empty"><div class="big">▦</div><p><b>Nothing created yet</b></p><p>Tables and charts the assistant creates will show up here.</p></div>';return}
+  const isP=mode==='preview';const regs=S.region?[S.region]:REGIONS;
+  const cols=[['month','Month'],['region','Region'],['r25','Revenue 2025',1],['r26','Revenue 2026',1]].concat(S.yoy?[['yoy','YoY growth',1]]:[]);
+  const sk=S.sort.k==='mi'?'month':S.sort.k;
+  const body=sorted().map(r=>'<tr>'+cols.map(c=>{if(c[0]==='yoy'){const v=r.yoy*100;return '<td class="num '+(v<0?'neg':'pos')+(flashCol?' newcol':'')+'">'+(v>0?'+':'')+v.toFixed(1)+'%</td>'}
+    const v=r[c[0]];return '<td class="'+(c[2]?'num':'')+'">'+(c[2]?money(v):esc(v))+'</td>'}).join('')+'</tr>').join('');
+  st.innerHTML='<div class="card '+(isP?'dim':'')+'" style="margin-bottom:14px"><div class="ch"><h3>Revenue 2026 by month and region</h3>'+(isP?'<span class="preview-tag">Preview · not created yet</span>':'<span class="created-tag">✓ Created</span>')+'</div>'+
+   '<div class="legend">'+regs.map(r=>'<span><i style="background:'+COLORS[r]+'"></i>'+r+'</span>').join('')+'</div><div style="padding:6px 14px 8px" id="chartBox">'+chart(isP)+'</div></div>'+
+   '<div class="card '+(isP?'dim':'')+'"><div class="ch"><h3>Acme Sales 2026</h3>'+(isP?'<span class="preview-tag">Preview · not created yet</span>':'<button class="place" id="placeBtn" type="button">📄 Place on a page</button>')+'</div>'+
+   '<div class="tools"><label for="reg">Region</label><select id="reg" '+(isP?'disabled':'')+'><option value="">All regions</option>'+REGIONS.map(r=>'<option '+(S.region===r?'selected':'')+'>'+r+'</option>').join('')+'</select><span style="margin-left:auto;font-size:12px;color:#64748b">'+sorted().length+' rows</span></div>'+
+   '<div class="tw"><table class="dt"><thead><tr>'+cols.map(c=>'<th data-k="'+c[0]+'" class="'+(c[2]?'num ':'')+(sk===c[0]?'s':'')+'" aria-sort="'+(sk===c[0]?(S.sort.dir>0?'ascending':'descending'):'none')+'">'+c[1]+'<span class="ar">'+(sk===c[0]?(S.sort.dir>0?'↑':'↓'):'↕')+'</span></th>').join('')+'</tr></thead><tbody>'+body+'</tbody></table></div></div>';
+  if(isP)return;
+  $('#reg').addEventListener('change',e=>{S.region=e.target.value;renderStage('live')});
+  st.querySelectorAll('th').forEach(th=>th.addEventListener('click',()=>{let kk=th.dataset.k;if(kk==='month')kk='mi';if(S.sort.k===kk)S.sort.dir*=-1;else S.sort={k:kk,dir:1};renderStage('live')}));
+  $('#placeBtn').addEventListener('click',()=>userSays('Place it on a new draft page'));
+  const tip=$('#tip');st.querySelectorAll('.seg').forEach(r=>{r.addEventListener('mousemove',e=>{tip.textContent=r.dataset.t;tip.style.opacity=1;tip.style.left=e.clientX+12+'px';tip.style.top=e.clientY-32+'px'});r.addEventListener('mouseleave',()=>tip.style.opacity=0)})}
+renderStage('empty');start();
+})();
+</script>
+</body>
+</html>

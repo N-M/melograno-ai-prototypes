@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IvyForms · Lead Agent conversation (prototype)</title>
+<style>
+:root{--teal:#00a19a;--teal-d:#008a84;--teal-l:#e3f5f4;--ink:#1f2733;--muted:#6b7684;--line:#e2e7ee;--bg:#f7f9fc;--red:#d63c3c;--hot:#d64545;--warm:#d98a1c;--cold:#4a7bd0}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 18px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap;position:sticky;top:0;z-index:5}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700}.logo svg{width:24px;height:24px}.sp{flex:1}
+.badge{background:#fff4d6;color:#7a5a00;border:1px solid #f1d98a;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600}
+.vt{display:flex;background:#eef1f4;border-radius:8px;padding:3px}.vt button{border:0;background:none;padding:7px 14px;border-radius:6px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer;position:relative}.vt button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.vt .pip{position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--hot);display:none}
+.btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}.btn.sm{padding:5px 10px;font-size:12.5px}
+/* visitor site */
+#visitor{min-height:calc(100vh - 54px);background:#101318;color:#e8e8ea;font-family:inherit}
+.site-nav{display:flex;justify-content:space-between;align-items:center;padding:18px 32px;border-bottom:1px solid #22262e}.site-nav b{letter-spacing:.1em}.site-nav b i{color:#7cf2c9;font-style:normal}.site-nav span{color:#8b8f99;font-size:13px}
+.hero{display:grid;grid-template-columns:1fr 470px;gap:40px;max-width:1180px;margin:0 auto;padding:40px 32px}
+.hero h1{font-size:40px;line-height:1.1;margin:10px 0 14px}.eyebrow{color:#7cf2c9;letter-spacing:.2em;font-size:12px}.hero p{color:#a5a9b3;font-size:16px;line-height:1.55;max-width:460px}
+.logos{display:flex;gap:18px;margin-top:28px;color:#5d626c;font-weight:700;letter-spacing:.06em;flex-wrap:wrap}
+.chat{background:#fff;color:var(--ink);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.45);display:flex;flex-direction:column;height:600px;overflow:hidden}
+.ch{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}.av{width:34px;height:34px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.ch .t{font-weight:700}.ch .s{font-size:12px;color:var(--muted)}.ai{font-size:11px;background:var(--teal-l);color:var(--teal-d);border-radius:10px;padding:2px 7px;font-weight:600;margin-left:4px}
+.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#fafbfc}
+.m{max-width:85%;padding:10px 13px;border-radius:14px;line-height:1.45;animation:pop .2s ease}.m.b{background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px;align-self:flex-start}.m.u{background:var(--teal);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+@keyframes pop{from{opacity:0;transform:translateY(4px)}}
+.typing{align-self:flex-start;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:flex;gap:4px}.typing i{width:6px;height:6px;border-radius:50%;background:#aab3bf;animation:bl 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bl{50%{opacity:.3}}
+.qr{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 10px;background:#fafbfc}.qr button{border:1px solid var(--teal);color:var(--teal-d);background:#fff;border-radius:16px;padding:6px 11px;font:inherit;font-size:13px;cursor:pointer}.qr button:hover{background:var(--teal-l)}
+.inp{border-top:1px solid var(--line);padding:10px 12px}.inp form{display:flex;gap:8px}.inp input{flex:1;font:inherit;border:1px solid #cfd6df;border-radius:20px;padding:9px 14px}.inp input.bad{border-color:var(--red)}.inp input:focus{outline:2px solid rgba(0,161,154,.25)}
+.inp .hint{font-size:12px;color:var(--red);margin:5px 6px 0;min-height:0}
+.send{width:38px;height:38px;border-radius:50%;border:0;background:var(--teal);color:#fff;font-size:16px;cursor:pointer}
+.sum{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;align-self:stretch}.sum h4{margin:0 0 8px}.sum dl{display:grid;grid-template-columns:110px 1fr;gap:4px 8px;margin:0;font-size:13px}.sum dt{color:var(--muted)}.sum dd{margin:0}
+.slots{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.slots button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 10px;font:inherit;font-size:12.5px;cursor:pointer}.slots button:hover{border-color:var(--teal)}
+.fine{font-size:11px;color:var(--muted);text-align:center;padding:0 12px 8px}
+/* owner */
+#owner{display:none;max-width:1180px;margin:0 auto;padding:22px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(33,40,50,.05)}
+.og{display:grid;grid-template-columns:1fr 1.3fr;gap:18px}
+.el{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;border:1px solid transparent;cursor:default}.el.new{border-color:var(--teal);background:var(--teal-l)}
+.sc{border-radius:12px;padding:3px 9px;font-size:12px;font-weight:700;color:#fff}.sc.Hot{background:var(--hot)}.sc.Warm{background:var(--warm)}.sc.Cold{background:var(--cold)}
+.muted{color:var(--muted)}.small{font-size:12.5px}h2{font-size:17px;margin:0 0 4px}h3{font-size:14px;margin:16px 0 6px}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 10px;font-size:13.5px}.kv div:nth-child(odd){color:var(--muted)}
+.reasons li{margin:4px 0}.reasons .p{color:#1d7a3e;font-weight:700}.reasons .n{color:var(--red);font-weight:700}
+.next{background:#f3faf9;border:1px solid #bfe6e3;border-radius:8px;padding:12px}
+.meter{height:8px;border-radius:5px;background:#eef1f4;overflow:hidden;margin:6px 0 2px}.meter i{display:block;height:100%}
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding:20px 14px;gap:20px}.hero h1{font-size:28px}.chat{height:560px}.og{grid-template-columns:1fr}.site-nav{padding:14px}.site-nav span{display:none}.kv{grid-template-columns:110px 1fr}}
+</style></head><body>
+<div class="topbar"><div class="logo"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#00a19a"/><path d="M9 22c0-7 4-12 13-13-1 8-5 13-13 13z" fill="#fff"/></svg>IvyForms Lead Agent</div><span class="badge">Prototype, sample data</span><span class="sp"></span>
+<div class="vt"><button class="on" data-v="visitor">Visitor view</button><button data-v="owner">Owner view<span class="pip" id="pip"></span></button></div><button class="btn sm" id="restart">↺ Restart</button></div>
+<section id="visitor"><div class="site-nav"><b>NORTHBEAM<i>.</i></b><span>Work · Services · Studio · Contact</span></div>
+<div class="hero"><div><div class="eyebrow">DIGITAL AGENCY · BELGRADE</div><h1>Websites and stores that actually bring in work.</h1><p>Tell us about your project. Our assistant asks a few quick questions instead of a long form, and a real person from the team follows up.</p><div class="logos"><span>MAPLE&amp;CO</span><span>RIVERLINE</span><span>KOVA</span><span>BRIGHTSIDE</span></div></div>
+<div class="chat"><div class="ch"><div class="av">✦</div><div><div class="t">Project enquiry <span class="ai">AI assistant</span></div><div class="s">Usually replies instantly · a person follows up</div></div></div>
+<div class="msgs" id="msgs"></div><div class="qr" id="qr"></div>
+<div class="inp"><form id="f"><input id="in" autocomplete="off" placeholder="Type your answer…"><button class="send" aria-label="Send">➤</button></form><div class="hint" id="hint"></div></div>
+<div class="fine">You're chatting with an AI assistant. Answers are saved as an enquiry for Northbeam.</div></div></div></section>
+<section id="owner"></section>
+<script>
+(function(){
+var $=function(s){return document.querySelector(s)};
+var A,step,scoreCache=null,booked=null,busy=false,gen=0;
+var FREE=/@(gmail|yahoo|hotmail|outlook|icloud|proton)\./i;
+function reset(){gen++;busy=false;A={};step=0;scoreCache=null;booked=null;$("#msgs").innerHTML="";$("#qr").innerHTML="";$("#pip").style.display="none";hint("");renderOwner();go("name")}
+function add(cls,html){var d=document.createElement("div");d.className="m "+cls;d.innerHTML=html;$("#msgs").appendChild(d);scroll();return d}
+function scroll(){var m=$("#msgs");m.scrollTop=m.scrollHeight}
+function hint(t){$("#hint").textContent=t;$("#in").classList.toggle("bad",!!t)}
+function bot(lines,chips,cb){$("#qr").innerHTML="";var arr=[].concat(lines),i=0,g=gen;busy=true;
+ (function next(){if(g!==gen)return;if(i>=arr.length){busy=false;chipsOut(chips);cb&&cb();return}var t=document.createElement("div");t.className="typing";t.innerHTML="<i></i><i></i><i></i>";$("#msgs").appendChild(t);scroll();
+  setTimeout(function(){t.remove();if(g!==gen)return;var x=arr[i++];if(typeof x==="function")x();else add("b",x);next()},Math.min(900,350+String(arr[i]).length*6))})()}
+function chipsOut(c){$("#qr").innerHTML="";(c||[]).forEach(function(t){var b=document.createElement("button");b.type="button";b.textContent=t;b.onclick=function(){answer(t)};$("#qr").appendChild(b)})}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+var cur="";
+var NEEDF={"New website":["Roughly how big is it, and is the content ready?",["Under 10 pages, content ready","10–30 pages","Not sure yet"]],
+"Online store":["How many products will you sell?",["Under 50","50–500","500+"]],
+"Branding":["Is this a brand-new brand or a refresh of an existing one?",["Brand new","Refresh"]],
+"Ongoing marketing":["Which channels matter most to you?",["SEO and content","Paid ads","Social media","All of them"]]};
+function go(k){cur=k;$("#in").placeholder="Type your answer…";$("#in").type="text";
+ if(k==="name")bot(["Hi! 👋 I'm Northbeam's AI assistant. I'll ask a few short questions so the team can come back with something useful.","What's your first name?"]);
+ if(k==="need")bot(["Nice to meet you, "+esc(A.name)+". What can we help with?"],["New website","Online store","Branding","Ongoing marketing","Something else"]);
+ if(k==="detail"){var q=NEEDF[A.need];if(q)bot([q[0]],q[1]);else bot(["Sure, tell me a bit more about the project in a sentence or two."])}
+ if(k==="budget")bot([A.need==="Online store"&&/500/.test(A.detail)?"A bigger catalogue, nice. That usually affects the budget, so:":"Thanks, that helps.","What budget do you have in mind?"],["Under €2k","€2k–5k","€5k–15k","€15k+","Not sure yet"]);
+ if(k==="budget2")bot(["No problem, a rough idea is enough. Is it closer to €3k or to €10k?"],["Closer to €3k","Closer to €10k","Honestly no idea"]);
+ if(k==="starter")bot(["Thanks for being upfront. For smaller budgets we have a fixed-price starter package from €1,500. Would that work for you?"],["Yes, sounds good","Maybe, tell me more","No"]);
+ if(k==="timeline")bot(["When would you like to launch?"],["As soon as possible","Within 3 months","Later this year","Just exploring"]);
+ if(k==="company")bot([A.timeline==="As soon as possible"?"Got it, a fast start. We keep a couple of slots for quick projects.":"Good to know.","What's your company called? You can skip this."],["Skip"]);
+ if(k==="email"){$("#in").type="email";$("#in").placeholder="name@company.com";bot(["Last one: which email should the team reply to?"])}
+ if(k==="summary")showSummary();
+}
+function answer(t){t=String(t).trim();if(!t||busy)return;
+ if(cur==="email"){if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(t)){add("u",esc(t));bot(["Hmm, that email doesn't look quite right. Could you check it? For example, name@company.com"]);hint("Please enter a valid email address");return}}
+ if(cur==="done"||cur==="wait")return;
+ hint("");add("u",esc(t));$("#in").value="";$("#qr").innerHTML="";
+ var k=cur;cur="wait";
+ if(k==="name"){A.name=cap(t.split(/\s+/)[0]);go("need")}
+ else if(k==="need"){A.need=NEEDF[t]?t:(t==="Something else"?"Something else":t);go("detail")}
+ else if(k==="detail"){A.detail=t;go("budget")}
+ else if(k==="budget"){A.budget=t;if(t==="Not sure yet")go("budget2");else if(t==="Under €2k")go("starter");else go("timeline")}
+ else if(k==="budget2"){A.budget=t==="Closer to €3k"?"Around €3k":t==="Closer to €10k"?"Around €10k":"Not sure";go("timeline")}
+ else if(k==="starter"){A.starter=t;go("timeline")}
+ else if(k==="timeline"){A.timeline=t;go("company")}
+ else if(k==="company"){A.company=t==="Skip"?"":t;go("email")}
+ else if(k==="email"){A.email=t;go("summary")}
+}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function score(){if(scoreCache)return scoreCache;var p=0,r=[];
+ var b=A.budget;
+ if(b==="€15k+"){p+=4;r.push(["+","Budget €15k+ fits our larger projects"])}
+ else if(b==="€5k–15k"||b==="Around €10k"){p+=3;r.push(["+","Budget "+b+" matches our typical project"])}
+ else if(b==="€2k–5k"||b==="Around €3k"){p+=2;r.push(["+","Budget "+b+" is workable for a focused scope"])}
+ else if(b==="Under €2k"){r.push(["−","Budget under €2k"+(A.starter==="Yes, sounds good"?", open to the €1,500 starter package":", below our usual minimum")]);if(A.starter==="Yes, sounds good")p+=1}
+ else {p+=1;r.push(["−","Budget unknown"])}
+ var t=A.timeline;
+ if(t==="As soon as possible"){p+=3;r.push(["+","Wants to start as soon as possible"])}else if(t==="Within 3 months"){p+=2;r.push(["+","Launch within 3 months"])}else if(t==="Later this year"){p+=1;r.push(["−","Launch later this year"])}else r.push(["−","Just exploring, no timeline"]);
+ if(A.need==="New website"||A.need==="Online store"){p+=1;r.push(["+",A.need+" is a core service"])}
+ if(A.company){p+=1;r.push(["+","Company named: "+A.company])}
+ if(A.email&&!FREE.test(A.email)){p+=1;r.push(["+","Business email domain"])}else r.push(["−","Personal email address"]);
+ var c=p>=7?"Hot":p>=4?"Warm":"Cold";
+ var next=c==="Hot"?"Call within 24 hours. Booking slot offered to the visitor.":c==="Warm"?"Reply today with two relevant case studies and ask about the budget range.":"Send the starter package page and add to the monthly newsletter.";
+ scoreCache={p:p,c:c,r:r,next:next};return scoreCache}
+function showSummary(){var s=score();
+ bot(["Thanks, "+esc(A.name)+"! Here's what I'll send to the team:",function(){var d=document.createElement("div");d.className="sum";d.innerHTML="<h4>Your enquiry</h4><dl><dt>Name</dt><dd>"+esc(A.name)+"</dd><dt>Project</dt><dd>"+esc(A.need)+"</dd><dt>Details</dt><dd>"+esc(A.detail)+"</dd><dt>Budget</dt><dd>"+esc(A.budget)+(A.starter?" · starter: "+esc(A.starter):"")+"</dd><dt>Timeline</dt><dd>"+esc(A.timeline)+"</dd>"+(A.company?"<dt>Company</dt><dd>"+esc(A.company)+"</dd>":"")+"<dt>Email</dt><dd>"+esc(A.email)+"</dd></dl>";$("#msgs").appendChild(d);scroll()},
+  s.c==="Hot"?"Your project sounds like a great fit. Want to talk to Ana from our team this week? Pick a time:":"Sent! Someone from the team will reply by email within one working day."],null,function(){
+  cur="done";$("#pip").style.display="block";renderOwner();
+  if(s.c==="Hot"){var d=document.createElement("div");d.className="m b";d.innerHTML='<div class="small muted">30-min intro call · booked through Amelia</div><div class="slots">'+["Tue 20 Oct, 10:00","Wed 21 Oct, 14:30","Thu 22 Oct, 11:00"].map(function(x){return"<button>"+x+"</button>"}).join("")+'</div>';$("#msgs").appendChild(d);scroll();
+   d.querySelectorAll("button").forEach(function(b){b.onclick=function(){if(booked)return;booked=b.textContent;add("u",esc(booked));bot(["Booked ✅ "+booked+" with Ana. A calendar invite is on its way to "+esc(A.email)+"."],null,renderOwner)}})}
+ })}
+var PREV=[["Lena K.","Online store · €5k–15k","Warm","Yesterday"],["Marko P.","Branding · not sure","Cold","Mon"],["Sofia R.","New website · €15k+","Hot","Last week"]];
+function renderOwner(){var o=$("#owner"),s=cur==="done"?score():null;
+ var list=(s?'<div class="el new"><span class="sc '+s.c+'">'+s.c+'</span><div><b>'+esc(A.name)+(A.company?" · "+esc(A.company):"")+'</b><div class="small muted">'+esc(A.need)+" · "+esc(A.budget)+'</div></div><span class="sp"></span><span class="small muted">Just now</span></div>':"")+PREV.map(function(p){return'<div class="el"><span class="sc '+p[2]+'">'+p[2]+'</span><div><b>'+p[0]+'</b><div class="small muted">'+p[1]+'</div></div><span class="sp"></span><span class="small muted">'+p[3]+'</span></div>'}).join("");
+ var det=!s?'<div class="card empty">💬<br><br>Finish the conversation in <b>Visitor view</b> and the new entry appears here, scored by the Lead Agent.</div>':
+ '<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h2>'+esc(A.name)+(A.company?" · "+esc(A.company):"")+'</h2><span class="sc '+s.c+'">'+s.c+'</span><span class="sp"></span><span class="small muted">Project enquiry · via conversation</span></div>'+
+ '<div class="meter"><i style="width:'+Math.min(100,s.p/11*100)+'%;background:var(--'+s.c.toLowerCase()+')"></i></div><div class="small muted">Lead score '+s.p+' / 11 · Hot 7+, Warm 4–6, Cold below 4 (your own rules)</div>'+
+ '<h3>Why this score</h3><ul class="reasons">'+s.r.map(function(x){return'<li><span class="'+(x[0]==="+"?"p":"n")+'">'+x[0]+'</span> '+esc(x[1])+'</li>'}).join("")+'</ul>'+
+ '<h3>Suggested next step</h3><div class="next">'+esc(s.next)+(s.c==="Hot"?'<div class="small" style="margin-top:6px">'+(booked?'📅 <b>Booked through Amelia:</b> '+esc(booked)+' · Intro call with Ana':'📅 Booking slot offered to the visitor (Amelia). Not booked yet.')+'</div>':'')+'</div>'+
+ '<h3>Entry</h3><div class="kv"><div>Name</div><div>'+esc(A.name)+'</div><div>Email</div><div>'+esc(A.email)+'</div><div>Company</div><div>'+(esc(A.company)||"—")+'</div><div>Project</div><div>'+esc(A.need)+'</div><div>Details</div><div>'+esc(A.detail)+'</div><div>Budget</div><div>'+esc(A.budget)+(A.starter?" · starter package: "+esc(A.starter):"")+'</div><div>Timeline</div><div>'+esc(A.timeline)+'</div></div>'+
+ '<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap"><button class="btn primary">Reply by email</button><button class="btn">Change category</button><button class="btn">Open full entry</button></div></div>';
+ o.innerHTML='<div class="og"><div class="card"><h2>Entries · Project enquiry</h2><div class="small muted" style="margin-bottom:10px">Sorted by newest · filters: All · Hot · Warm · Cold</div>'+list+'</div>'+det+'</div>'}
+document.querySelectorAll(".vt button").forEach(function(b){b.onclick=function(){document.querySelectorAll(".vt button").forEach(function(x){x.classList.toggle("on",x===b)});$("#visitor").style.display=b.dataset.v==="visitor"?"block":"none";$("#owner").style.display=b.dataset.v==="owner"?"block":"none";if(b.dataset.v==="owner")$("#pip").style.display="none"}});
+$("#f").onsubmit=function(e){e.preventDefault();answer($("#in").value)};
+$("#in").addEventListener("input",function(){if(cur!=="email")return;var v=this.value.trim();hint(v&&v.indexOf("@")>0&&!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v)?"Keep typing… this needs to look like name@company.com":"")});
+$("#restart").onclick=reset;
+window.__answer=answer;window.__state=function(){return busy?"busy":cur};
+reset();
+})();
+</script></body></html>

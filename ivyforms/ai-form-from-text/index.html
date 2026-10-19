@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IvyForms · Create a form from text (prototype)</title>
+<style>
+:root{--teal:#00a19a;--teal-d:#008a84;--teal-l:#e3f5f4;--ink:#1f2733;--muted:#6b7684;--line:#e2e7ee;--bg:#f7f9fc;--red:#d63c3c;--amber:#b7791f}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+header{display:flex;align-items:center;gap:12px;padding:12px 22px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}.logo svg{width:26px;height:26px}
+.crumb{color:var(--muted)}.sp{flex:1}
+.badge{background:#fff4d6;color:#7a5a00;border:1px solid #f1d98a;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600}
+.bal{display:flex;align-items:center;gap:6px;background:var(--teal-l);color:var(--teal-d);border-radius:20px;padding:5px 12px;font-weight:600;font-size:13px}
+main{max-width:1240px;margin:0 auto;padding:22px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(33,40,50,.05)}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:0 0 10px}.lead{color:var(--muted);margin:0 0 16px}
+textarea,input[type=text],input[type=email],input[type=tel],input[type=date],input[type=number],input[type=url],select{width:100%;font:inherit;border:1px solid #cfd6df;border-radius:7px;padding:9px 11px;background:#fff;color:var(--ink)}
+textarea:focus,input:focus,select:focus{outline:2px solid rgba(0,161,154,.25);border-color:var(--teal)}
+#desc{min-height:150px;resize:vertical;line-height:1.5}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 12px;cursor:pointer;font-size:13px}.chip:hover{border-color:var(--teal);color:var(--teal-d)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}.btn.primary:hover{background:var(--teal-d)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{padding:5px 10px;font-size:12.5px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.muted{color:var(--muted)}.small{font-size:12.5px}
+.cost{font-size:13px;color:var(--muted)}.cost b{color:var(--ink)}
+.think{display:none;margin-top:18px}.think.on{display:block}
+.step{display:flex;align-items:center;gap:10px;padding:6px 0;color:var(--muted)}.step.done{color:var(--ink)}
+.dot{width:16px;height:16px;border-radius:50%;border:2px solid #cfd6df;flex:none}.step.cur .dot{border-color:var(--teal);border-top-color:transparent;animation:spin .8s linear infinite}.step.done .dot{background:var(--teal);border-color:var(--teal)}
+@keyframes spin{to{transform:rotate(360deg)}}
+#result{scroll-margin-top:110px;display:none;margin-top:20px;grid-template-columns:1.1fr 1fr;gap:20px}#result.on{display:grid}
+.pv h3{margin:0 0 4px;font-size:19px}.pv .fld{margin-bottom:14px}.pv label.l{display:block;font-weight:600;margin-bottom:5px}.req{color:var(--red)}
+.err{color:var(--red);font-size:12.5px;margin-top:4px;display:none}.fld.bad .err{display:block}.fld.bad input,.fld.bad select,.fld.bad textarea{border-color:var(--red)}
+.opts label{display:flex;gap:8px;align-items:center;margin:4px 0;font-weight:400}
+.stars{display:flex;gap:4px;font-size:24px;cursor:pointer;color:#cfd6df}.stars span.on{color:#f5b301}
+.drop{border:1.5px dashed #cfd6df;border-radius:8px;padding:14px;text-align:center;color:var(--muted);cursor:pointer}
+.ok{background:#e6f6ec;color:#1d7a3e;border-radius:8px;padding:10px 12px;margin-top:10px;display:none}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px}.tab{padding:8px 12px;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted);font-weight:600}.tab.on{color:var(--teal-d);border-color:var(--teal)}
+.fl{display:grid;grid-template-columns:28px 1fr auto auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f0f2f5}
+.ti{width:28px;height:28px;border-radius:6px;background:var(--teal-l);display:flex;align-items:center;justify-content:center;font-size:14px}
+.fl input{padding:6px 8px}.type{font-size:11.5px;color:var(--muted)}
+.tg{width:36px;height:20px;border-radius:12px;background:#cfd6df;position:relative;cursor:pointer;flex:none;border:0}.tg::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.15s}.tg.on{background:var(--teal)}.tg.on::after{left:18px}
+.del{border:0;background:none;cursor:pointer;color:var(--muted);font-size:16px}.del:hover{color:var(--red)}
+.pane{display:none}.pane.on{display:block}
+.notif{border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px}
+.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.ovl{position:fixed;inset:0;background:rgba(20,28,38,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:9}.ovl.on{display:flex}
+.modal{background:#fff;border-radius:14px;max-width:460px;width:100%;padding:28px;text-align:center}
+.big{width:64px;height:64px;border-radius:50%;background:var(--teal-l);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 14px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;display:none;z-index:10}
+@media(max-width:860px){#result.on{display:block}#result .card+.card{margin-top:16px}main{padding:14px}.crumb{display:none}}
+</style></head><body>
+<header><div class="logo"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#00a19a"/><path d="M9 22c0-7 4-12 13-13-1 8-5 13-13 13z" fill="#fff"/><path d="M10 21l8-8" stroke="#00a19a" stroke-width="1.6"/></svg>IvyForms</div><span class="crumb">Forms › New form › Create with AI</span><span class="sp"></span><span class="badge">Prototype, sample data</span><span class="bal" title="Melograno AI balance">✦ Balance <span id="bal">$5.00</span></span></header>
+<main>
+<section id="start" class="card">
+<h1>✦ Create a form from text</h1><p class="lead">Describe the form in plain words, or paste a questionnaire, email or document you already have. You review everything before it is saved.</p>
+<textarea id="desc" placeholder="For example: A booking request for our yoga studio. Ask for name, email and phone. Class type: beginner, vinyasa, yin. Preferred date. Any injuries?"></textarea>
+<div class="chips"><span class="muted small" style="align-self:center">Try an example:</span><button class="chip" data-ex="dental">🦷 Dental intake</button><button class="chip" data-ex="event">🎟️ Event registration</button><button class="chip" data-ex="job">💼 Job application</button></div>
+<div class="row"><button class="btn primary" id="create">✦ Create form</button><span class="cost">Estimated cost <b id="est">≈ $0.03</b> from your Melograno AI balance</span></div>
+<div class="think" id="think"><div class="step" data-s="0"><span class="dot"></span>Reading your description</div><div class="step" data-s="1"><span class="dot"></span>Choosing fields and validation</div><div class="step" data-s="2"><span class="dot"></span>Writing notifications and the thank-you message</div></div>
+</section>
+<section id="result">
+<div class="card pv"><div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="small muted">Live preview · try submitting it</span><span class="small" style="color:var(--teal-d);font-weight:600" id="spent"></span></div>
+<h3 id="ptitle">Form</h3><p class="muted small" style="margin:0 0 16px">Fields marked <span class="req">*</span> are required.</p><form id="pform" novalidate></form><div class="ok" id="pok">✓ All answers are valid. In the real form this would be saved as an entry.</div></div>
+<div class="card"><h2>Review</h2><div class="tabs"><div class="tab on" data-t="f">Fields (<span id="fc">0</span>)</div><div class="tab" data-t="n">Notifications</div><div class="tab" data-t="c">Confirmation</div></div>
+<div class="pane on" id="p-f"><div class="small muted" style="margin-bottom:6px">Rename, delete or make a field required. The preview updates as you go.</div><div id="flist"></div></div>
+<div class="pane" id="p-n"><div id="nlist"></div></div>
+<div class="pane" id="p-c"><label class="small muted">Message shown after sending</label><textarea id="conf" style="min-height:110px;margin-top:6px"></textarea></div>
+<div class="actions"><button class="btn" id="regen">↻ Regenerate</button><button class="btn" id="edit">✎ Edit description</button><button class="btn primary" id="save">Save form</button></div></div>
+</section>
+</main>
+<div class="ovl" id="ovl"><div class="modal"><div class="big">✓</div><h2 style="font-size:20px">Form saved</h2><p class="muted" id="sv"></p><div class="row" style="justify-content:center;margin-top:14px"><button class="btn primary" id="again">Create another form</button><button class="btn" id="close">Back to review</button></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+var EX={
+dental:"Patient intake form for Smile Dental Studio.\nAsk for full name, email and phone (required).\nDate of birth.\nReason for visit: check-up, cleaning, toothache, whitening, other.\nWhich of these apply: diabetes, heart condition, allergies, pregnancy.\nUpload a photo of your insurance card (optional).\nAny notes for the dentist.\nI consent to treatment and the privacy policy.",
+event:"Registration form for the Green Tech Meetup on 14 November.\nName and email required, company optional.\nTicket type: standard, student, speaker.\nNumber of guests.\nDietary needs: vegetarian, vegan, gluten-free, none.\nHow did you hear about us?\nRate last year's event.",
+job:"Job application for a Junior Designer.\nFull name, email, phone.\nLink to your portfolio.\nUpload your CV (required).\nYears of experience: 0-1, 2-4, 5+.\nEarliest start date.\nWhich tools do you use: Figma, Photoshop, Illustrator, Webflow.\nShort cover letter.\nI agree to the privacy policy."};
+var $=function(s){return document.querySelector(s)},$$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+var balance=5.00,fields=[],title="New form",gen=0;
+var ICON={text:"Aa",email:"@",tel:"☎",date:"📅",select:"▾",checkbox:"☑",file:"📎",rating:"★",textarea:"¶",number:"#",url:"🔗",consent:"✔"};
+var TYPE={text:"Short text",email:"Email",tel:"Phone",date:"Date",select:"Dropdown",checkbox:"Checkboxes",file:"File upload",rating:"Rating 1–5",textarea:"Paragraph",number:"Number",url:"Website link",consent:"Consent checkbox"};
+function cap(s){s=s.trim();return s.charAt(0).toUpperCase()+s.slice(1)}
+function estimate(t){var n=(t.match(/[\n.;]/g)||[]).length;return Math.max(0.02,Math.min(0.08,0.015+n*0.003))}
+function updEst(){$("#est").textContent="≈ $"+estimate($("#desc").value).toFixed(2)}
+function parse(text){
+ var out=[],have={},t="New form";
+ var segs=text.split(/\n|(?<=[.!?])\s+|;/).map(function(s){return s.trim()}).filter(Boolean);
+ function add(f){var k=f.type+"|"+f.label.toLowerCase();if(have[k])return;have[k]=1;f.id="f"+Math.random().toString(36).slice(2,8);out.push(f)}
+ segs.forEach(function(seg,i){
+  var s=seg.toLowerCase().replace(/[.!]+$/,"");
+  var req=/required|must|mandatory/.test(s),opt=/optional/.test(s);
+  if(i===0&&/(form|registration|application|intake|booking|survey|request)\b/.test(s)&&!/name|email|phone/.test(s)){t=cap(seg.replace(/[.!]+$/,"").replace(/^(a|an|the)\s+/i,""));return}
+  var m=seg.match(/^(.*?):\s*(.+)$/);
+  if(m&&/,|\/| or /.test(m[2])&&!/name|email|e-mail/.test(m[1].toLowerCase())){
+   var opts=m[2].replace(/[.!]+$/,"").split(/\s*(?:,|\/|\bor\b|\band\b)\s*/).map(cap).filter(Boolean);
+   var multi=/which|apply|select all|any of|tools|dietary|interests/.test(m[1].toLowerCase());
+   var lab=cap(m[1]);if(multi&&!/\?$/.test(lab))lab+="?";
+   add({type:multi?"checkbox":"select",label:lab,options:opts,required:!opt&&!multi});return}
+  if(/agree|consent|privacy|terms/.test(s)){add({type:"consent",label:cap(seg.replace(/[.!]+$/,"")),required:true});return}
+  var hit=false;
+  if(/\bname\b/.test(s)){add({type:"text",label:"Full name",required:true});hit=true}
+  if(/e-?mail/.test(s)){add({type:"email",label:"Email",required:true});hit=true}
+  if(/phone|mobile|telephone/.test(s)){add({type:"tel",label:"Phone",required:req||!opt&&/required/.test(s)});hit=true}
+  if(/company|organi[sz]ation/.test(s)){add({type:"text",label:"Company",required:!/company optional|optional/.test(s)&&req&&!/name and email required/.test(s)});hit=true}
+  if(hit)return;
+  if(/upload|attach|\bcv\b|resume|photo|file|document/.test(s)){var fl=/cv|resume/.test(s)?"CV":/insurance/.test(s)?"Insurance card photo":/photo/.test(s)?"Photo":"File";add({type:"file",label:fl,required:req&&!opt});return}
+  if(/rate|rating|stars|satisfaction|score/.test(s)){add({type:"rating",label:/last year/.test(s)?"How would you rate last year's event?":"Your rating",required:false});return}
+  if(/date|birth|\bwhen\b|\bday\b/.test(s)){add({type:"date",label:/birth/.test(s)?"Date of birth":/start/.test(s)?"Earliest start date":"Preferred date",required:/birth|start/.test(s)||req});return}
+  if(/link|website|url|portfolio/.test(s)){add({type:"url",label:/portfolio/.test(s)?"Portfolio link":"Website",required:req});return}
+  if(/number of|how many|guests|tickets|quantity/.test(s)){add({type:"number",label:/guest/.test(s)?"Number of guests":"How many?",required:false});return}
+  if(/hear about/.test(s)){add({type:"select",label:"How did you hear about us?",options:["Search engine","Social media","A friend","Newsletter","Other"],required:false});return}
+  if(/note|comment|message|describe|details|letter|injur|anything|question/.test(s)){add({type:"textarea",label:/letter/.test(s)?"Cover letter":/dentist/.test(s)?"Notes for the dentist":cap(seg.replace(/[.!]+$/,"").replace(/^(ask( for| about)?|any)\s+/i,"")),required:/letter/.test(s)||req});return}
+  if(s.split(" ").length<=8){add({type:"text",label:cap(seg.replace(/[.!?]+$/,"").replace(/^ask( for| about)?\s+/i,"")),required:req})}
+ });
+ if(!out.length){add({type:"text",label:"Full name",required:true});add({type:"email",label:"Email",required:true});add({type:"textarea",label:"Message",required:true})}
+ return {title:t,fields:out};
+}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function renderPreview(){
+ $("#ptitle").textContent=title;var h="";
+ fields.forEach(function(f){var r=f.required?' <span class="req">*</span>':"",inp="";
+  if(f.type==="select")inp='<select name="'+f.id+'"><option value="">Choose…</option>'+f.options.map(function(o){return"<option>"+esc(o)+"</option>"}).join("")+"</select>";
+  else if(f.type==="checkbox")inp='<div class="opts">'+f.options.map(function(o){return'<label><input type="checkbox" name="'+f.id+'" value="'+esc(o)+'"> '+esc(o)+"</label>"}).join("")+"</div>";
+  else if(f.type==="consent")inp='<div class="opts"><label><input type="checkbox" name="'+f.id+'"> '+esc(f.label)+r+"</label></div>";
+  else if(f.type==="textarea")inp='<textarea name="'+f.id+'" rows="3"></textarea>';
+  else if(f.type==="file")inp='<label class="drop"><input type="file" name="'+f.id+'" hidden> 📎 <span>Click to choose a file</span></label>';
+  else if(f.type==="rating")inp='<div class="stars" data-n="'+f.id+'">'+[1,2,3,4,5].map(function(i){return'<span data-v="'+i+'">★</span>'}).join("")+'</div><input type="hidden" name="'+f.id+'">';
+  else inp='<input type="'+f.type+'" name="'+f.id+'"'+(f.type==="tel"?' placeholder="+381 60 123 4567"':f.type==="email"?' placeholder="name@example.com"':f.type==="url"?' placeholder="https://"':"")+">";
+  h+='<div class="fld" data-id="'+f.id+'">'+(f.type==="consent"?"":'<label class="l">'+esc(f.label)+r+"</label>")+inp+'<div class="err"></div></div>'});
+ h+='<button class="btn primary" type="submit">Send</button>';
+ $("#pform").innerHTML=h;$("#pok").style.display="none";
+ $$("#pform .stars").forEach(function(st){st.addEventListener("click",function(e){var v=e.target.getAttribute("data-v");if(!v)return;st.nextElementSibling.value=v;$$('[data-n="'+st.getAttribute("data-n")+'"] span').forEach(function(x){x.classList.toggle("on",+x.getAttribute("data-v")<=+v)})})});
+ $$("#pform input[type=file]").forEach(function(fi){fi.addEventListener("change",function(){fi.nextElementSibling.textContent=fi.files.length?fi.files[0].name:"Click to choose a file"})});
+}
+function renderList(){
+ $("#fc").textContent=fields.length;
+ $("#flist").innerHTML=fields.map(function(f){return'<div class="fl" data-id="'+f.id+'"><span class="ti">'+ICON[f.type]+'</span><div><input type="text" value="'+esc(f.label)+'" aria-label="Field label"><div class="type">'+TYPE[f.type]+(f.options?" · "+f.options.length+" options":"")+'</div></div><span class="row small muted" style="gap:6px">Required <button class="tg'+(f.required?" on":"")+'" aria-label="Required"></button></span><button class="del" title="Delete field">🗑</button></div>'}).join("")||'<p class="muted">No fields left. Regenerate or edit the description.</p>';
+ var hasEmail=fields.some(function(f){return f.type==="email"});
+ $("#nlist").innerHTML='<div class="notif"><b>To you</b> · owner@example.com<div class="small muted">Subject: New entry: '+esc(title)+'</div><div class="small" style="margin-top:6px">Includes every answer, with a link to the entry.</div></div>'+(hasEmail?'<div class="notif"><b>To the person who filled it in</b><div class="small muted">Subject: Thanks, we received your '+esc(title.toLowerCase().replace(/ form.*$/,""))+'</div><div class="small" style="margin-top:6px">A short thank-you with a copy of their answers.</div></div>':'<div class="notif small muted">No email field, so no confirmation email to the visitor. Add an Email field to enable it.</div>');
+}
+function bindList(){
+ $("#flist").oninput=function(e){var row=e.target.closest(".fl");if(!row||e.target.tagName!=="INPUT")return;var f=fields.find(function(x){return x.id===row.dataset.id});f.label=e.target.value;renderPreview()};
+ $("#flist").onclick=function(e){var row=e.target.closest(".fl");if(!row)return;var f=fields.find(function(x){return x.id===row.dataset.id});
+  if(e.target.classList.contains("tg")){f.required=!f.required;e.target.classList.toggle("on");renderPreview()}
+  if(e.target.classList.contains("del")){fields=fields.filter(function(x){return x!==f});renderList();renderPreview();toast("Field deleted")}};
+}
+function toast(m){var t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(t._h);t._h=setTimeout(function(){t.style.display="none"},1800)}
+function run(){
+ var txt=$("#desc").value.trim();if(!txt){$("#desc").focus();toast("Describe your form first, or pick an example");return}
+ var cost=estimate(txt);if(cost>balance){toast("Not enough balance");return}
+ $("#create").disabled=true;$("#regen").disabled=true;$("#result").classList.remove("on");$("#think").classList.add("on");
+ var steps=$$("#think .step");steps.forEach(function(s){s.className="step"});
+ var i=0;(function next(){if(i>0)steps[i-1].className="step done";if(i<steps.length){steps[i].className="step cur";i++;setTimeout(next,550)}else finish()})();
+ function finish(){
+  var r=parse(txt);gen++;title=r.title;fields=r.fields;
+  if(gen>1&&fields.length>2){ // a regenerated version varies a little
+   fields.forEach(function(f){if(f.type==="textarea"&&!/letter/i.test(f.label))f.label=f.label.replace(/^Notes/,"Anything else")});}
+  balance=Math.round((balance-cost)*100)/100;$("#bal").textContent="$"+balance.toFixed(2);
+  $("#spent").textContent="Used $"+cost.toFixed(2)+" · "+fields.length+" fields";
+  $("#conf").value="Thank you! We received your "+title.toLowerCase().replace(/ form.*$/,"")+" and will get back to you within one working day.";
+  setTimeout(function(){$("#think").classList.remove("on");$("#create").disabled=false;$("#regen").disabled=false;$("#result").classList.add("on");renderPreview();renderList();$("#result").scrollIntoView({behavior:"smooth",block:"start"})},250);
+ }
+}
+$("#pform").addEventListener("submit",function(e){e.preventDefault();var ok=true,fd=new FormData(this);
+ fields.forEach(function(f){var box=$('.fld[data-id="'+f.id+'"]'),v=fd.getAll(f.id).filter(function(x){return typeof x==="string"?x.trim():x&&x.size}),msg="";
+  var val=v.length?v[0]:"";
+  if(f.type==="consent"&&f.required&&!this[f.id].checked)msg="Please tick to continue.";
+  else if(f.required&&!v.length)msg=f.type==="checkbox"?"Choose at least one option.":f.type==="file"?"Please attach a file.":"This field is required.";
+  else if(val&&f.type==="email"&&!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(val))msg="Enter a valid email, like name@example.com.";
+  else if(val&&f.type==="tel"&&(val.replace(/\D/g,"").length<6))msg="Enter a valid phone number.";
+  else if(val&&f.type==="url"&&!/^https?:\/\/\S+\.\S+/.test(val))msg="Enter a full link starting with https://";
+  box.classList.toggle("bad",!!msg);box.querySelector(".err").textContent=msg;if(msg)ok=false},this);
+ $("#pok").style.display=ok?"block":"none";if(!ok){var b=$(".fld.bad");b&&b.scrollIntoView({behavior:"smooth",block:"center"})}});
+$$(".chip").forEach(function(c){c.onclick=function(){$("#desc").value=EX[c.dataset.ex];updEst()}});
+$("#desc").addEventListener("input",updEst);
+$("#create").onclick=run;$("#regen").onclick=run;
+$("#edit").onclick=function(){$("#start").scrollIntoView({behavior:"smooth"});$("#desc").focus()};
+$$(".tab").forEach(function(t){t.onclick=function(){$$(".tab").forEach(function(x){x.classList.toggle("on",x===t)});$$(".pane").forEach(function(p){p.classList.toggle("on",p.id==="p-"+t.dataset.t)})}});
+$("#save").onclick=function(){if(!fields.length){toast("Add at least one field");return}$("#sv").textContent="“"+title+"” was saved with "+fields.length+" fields, "+($("#nlist .notif b").length)+" notification(s) and your thank-you message. Add it to any page, or let an AI assistant draw it in your site's design.";$("#ovl").classList.add("on")};
+$("#close").onclick=function(){$("#ovl").classList.remove("on")};
+$("#again").onclick=function(){$("#ovl").classList.remove("on");$("#result").classList.remove("on");$("#desc").value="";updEst();window.scrollTo(0,0);$("#desc").focus()};
+bindList();updEst();
+window.__demo=function(ex){$("#desc").value=EX[ex];updEst();run()};
+})();
+</script></body></html>

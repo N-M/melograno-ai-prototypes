@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Headless wpDataTables · Northwind Demo</title>
+<style>
+:root{--bg:#f5f7fb;--panel:#fff;--ink:#0f172a;--muted:#64748b;--line:#e6eaf2;--soft:#f1f5f9;--accent:#2563eb;--accent2:#7c3aed;--ok:#059669;--warn:#d97706;--bad:#dc2626;--r:14px;--shadow:0 1px 2px rgba(15,23,42,.04),0 6px 24px rgba(15,23,42,.06);
+--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;height:100%}body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--font)}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:#fff;border-bottom:1px solid var(--line);gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;background:#eef2ff;color:#4338ca}
+.pill.green{background:#ecfdf5;color:#047857}.pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.banner{margin:16px 24px 0;padding:12px 16px;border-radius:var(--r);background:linear-gradient(90deg,#eff6ff,#f5f3ff);border:1px solid #dbe4ff;display:flex;gap:12px;align-items:center}
+.banner b{color:#1e3a8a}.banner .ic{font-size:18px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;padding:16px 24px 24px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.switcher{display:flex;gap:6px;padding:5px;background:#fff;border:1px solid var(--line);border-radius:12px;width:max-content}
+.switcher button{border:0;background:none;padding:8px 14px;border-radius:9px;font-weight:600;color:var(--muted);display:flex;gap:8px;align-items:center}
+.switcher button.on{background:var(--ink);color:#fff}
+.switcher small{font-weight:500;opacity:.7;font-size:11px}
+.headrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.src{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.src code{font-family:inherit;background:#f1f5f9;padding:2px 8px;border-radius:6px;color:#334155;font-weight:600}
+.filters{display:flex;flex-wrap:wrap;gap:10px;padding:12px;margin-bottom:14px;align-items:end}
+.f{display:flex;flex-direction:column;gap:4px}.f label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.f select,.f input{height:36px;border:1px solid var(--line);border-radius:9px;padding:0 10px;background:#fff;min-width:120px}
+.f input[type=search]{min-width:200px}
+.f.grow{flex:1}.f.grow input{width:100%}
+.iconbtn{height:36px;width:36px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:15px}
+.reset{height:36px;border:0;background:none;color:var(--accent);font-weight:600;padding:0 6px}
+.count{font-size:12px;color:var(--muted);margin-left:auto;align-self:center}
+/* dashboard */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.kpi{padding:16px}.kpi .l{font-size:12px;color:var(--muted);font-weight:600}.kpi .v{font-size:26px;font-weight:750;letter-spacing:-.02em;margin-top:4px}
+.kpi .s{font-size:12px;margin-top:2px;color:var(--muted)}.kpi .s.up{color:var(--ok)}.kpi .s.down{color:var(--bad)}
+.kpi.locked .v{font-size:15px;color:var(--muted);font-weight:600;padding:8px 0 3px}
+.grid2{display:grid;grid-template-columns:1.6fr 1fr;gap:14px}
+.chartcard{padding:16px}.chartcard h3{margin:0;font-size:14px}.chartcard .sub{font-size:12px;color:var(--muted);margin-bottom:6px}
+svg text{font-family:var(--font)}
+.tip{position:fixed;pointer-events:none;background:#0f172a;color:#fff;font-size:12px;padding:6px 9px;border-radius:8px;opacity:0;transition:opacity .1s;z-index:50;white-space:nowrap}
+.mini{margin-top:14px;padding:6px 16px 10px}
+.mini table{width:100%;border-collapse:collapse}.mini td,.mini th{padding:8px 4px;text-align:left;font-size:13px;border-bottom:1px solid var(--soft)}.mini th{color:var(--muted);font-weight:600;font-size:12px}
+.num{text-align:right!important;font-variant-numeric:tabular-nums}
+/* grid */
+.gridwrap{height:560px;overflow:auto;border-radius:var(--r)}
+table.bl{width:100%;border-collapse:separate;border-spacing:0}
+table.bl th{position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(4px);text-align:left;font-size:12px;color:var(--muted);font-weight:600;padding:12px 14px;cursor:pointer;user-select:none;z-index:2;border-bottom:1px solid var(--line);white-space:nowrap}
+table.bl th:hover{color:var(--ink)}table.bl th .ar{opacity:.35;margin-left:4px}table.bl th.sorted .ar{opacity:1;color:var(--accent)}
+table.bl td{padding:11px 14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+table.bl tr:hover td{background:#f8fafc}
+td.ed{position:relative;cursor:text;border-radius:6px}td.ed:hover{box-shadow:inset 0 0 0 1px #c7d2fe;background:#f5f7ff!important}
+td.ed::after{content:"✎";position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:11px;color:#818cf8;opacity:0}td.ed:hover::after{opacity:1}
+td.ed input,td.ed select{width:90px;height:30px;border:1px solid var(--accent);border-radius:7px;padding:0 6px}
+td.flash{animation:fl 1.6s}@keyframes fl{0%{background:#dcfce7}100%{background:transparent}}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px}
+.st-Paid{background:#ecfdf5;color:#047857}.st-Pending{background:#fffbeb;color:#b45309}.st-Refunded{background:#fef2f2;color:#b91c1c}
+.loading{padding:14px;text-align:center;color:var(--muted);font-size:12px}
+.shimmer{height:10px;border-radius:5px;background:linear-gradient(90deg,#eef2f7,#f8fafc,#eef2f7);background-size:200% 100%;animation:sh 1s infinite;margin:8px 14px}@keyframes sh{to{background-position:-200% 0}}
+.cat{font-size:12px;color:var(--muted)}
+/* cards */
+.regions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.rc{padding:14px 16px}.rc .n{font-weight:700}.rc .v{font-size:22px;font-weight:750;margin-top:6px}.rc .m{font-size:12px;color:var(--muted)}
+.clist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.oc{padding:14px;display:flex;flex-direction:column;gap:8px;transition:transform .15s,box-shadow .15s}.oc:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(15,23,42,.1)}
+.oc .row{display:flex;justify-content:space-between;align-items:center;gap:8px}.oc .p{font-weight:650}.oc .big{font-size:20px;font-weight:750}
+.oc .meta{font-size:12px;color:var(--muted)}
+.more{display:block;margin:16px auto 0;border:1px solid var(--line);background:#fff;padding:9px 18px;border-radius:10px;font-weight:600}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+/* side panel */
+.side{position:sticky;top:16px;align-self:start;overflow:hidden}
+.side .hd{padding:14px 16px;background:#1d2327;color:#fff;display:flex;align-items:center;gap:10px}
+.side .hd .wp{width:26px;height:26px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;font-weight:800;font-family:Georgia,serif;font-size:14px}
+.side .hd small{display:block;opacity:.7;font-size:11px}
+.sec{padding:14px 16px;border-bottom:1px solid var(--line)}.sec h4{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.opt{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;font-size:13px}
+.opt select{border:1px solid var(--line);border-radius:8px;height:32px;padding:0 8px;background:#fff;max-width:170px}
+.sw{position:relative;width:38px;height:22px;flex:none}.sw input{opacity:0;width:0;height:0}.sw span{position:absolute;inset:0;background:#cbd5e1;border-radius:22px;transition:.2s;cursor:pointer}
+.sw span::before{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.sw input:checked+span{background:var(--accent)}.sw input:checked+span::before{transform:translateX(16px)}
+.hint{font-size:11.5px;color:var(--muted);margin-top:6px}
+.lock{font-size:11px;color:#b45309;background:#fffbeb;border-radius:6px;padding:1px 6px;font-weight:600}
+.act{font-size:12px;padding:6px 0;border-bottom:1px dashed var(--line);display:flex;justify-content:space-between;gap:8px}.act:last-child{border:0}
+.act button{border:0;background:none;color:var(--accent);font-weight:600;font-size:12px;padding:0}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#0f172a;color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.25);display:flex;gap:10px;align-items:center;opacity:0;transition:.25s;z-index:60;font-size:13px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast .ck{width:20px;height:20px;border-radius:50%;background:#10b981;display:grid;place-items:center;font-size:12px}
+.view{animation:fade .25s}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.aib{font-size:11px;color:var(--accent2);font-weight:600;display:flex;align-items:center;gap:5px}
+@media (max-width:1100px){.layout{grid-template-columns:1fr}.side{position:static}.kpis,.regions{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><div class="logo">wp</div>Northwind Demo <span class="pill"><span class="dot"></span>Data served by wpDataTables</span></div>
+  <div style="display:flex;gap:10px;align-items:center"><span class="pill green"><span class="dot"></span>Live · demo data</span></div>
+</header>
+<div class="banner" role="note"><span class="ic">✦</span><div><b>Headless wpDataTables:</b> your data stays connected, formatted and protected in wp-admin, while any AI builder creates whatever front end you like on top of it.</div></div>
+
+<div class="layout">
+<main>
+  <div class="headrow">
+    <div class="switcher" role="tablist" aria-label="AI-generated front ends">
+      <button role="tab" data-view="dash" class="on">📊 Dashboard <small>AI-built</small></button>
+      <button role="tab" data-view="grid">▦ Borderless grid <small>AI-built</small></button>
+      <button role="tab" data-view="cards">▤ Cards <small>AI-built</small></button>
+    </div>
+    <div class="src">Source table <code>Northwind Sales</code> · <span id="rowsTotal"></span> rows</div>
+  </div>
+
+  <div class="card filters" aria-label="Filters">
+    <div class="f"><label for="fRegion">Region</label><select id="fRegion"></select></div>
+    <div class="f"><label for="fCat">Category</label><select id="fCat"></select></div>
+    <div class="f"><label for="fFrom">From</label><input type="date" id="fFrom"></div>
+    <div class="f"><label for="fTo">To</label><input type="date" id="fTo"></div>
+    <div class="f grow"><label for="fQ">Search</label><input type="search" id="fQ" placeholder="Product, order, region…"></div>
+    <div class="f"><label for="fSort">Sort by</label><select id="fSort"></select></div>
+    <button class="iconbtn" id="fDir" title="Toggle sort direction" aria-label="Toggle sort direction">↓</button>
+    <button class="reset" id="fReset">Reset</button>
+  </div>
+
+  <section id="view"></section>
+</main>
+
+<aside class="card side" aria-label="Managed in wp-admin">
+  <div class="hd"><div class="wp">W</div><div><b>Managed in wp-admin</b><small>wpDataTables · Northwind Sales</small></div></div>
+  <div class="sec">
+    <h4>Column formats</h4>
+    <div class="opt"><span>Revenue (currency)</span><select id="aCur">
+      <option value="USD">$1,234.50</option><option value="EUR">1.234,50 €</option><option value="GBP">£1,234.50</option><option value="CMP">$1.2K (compact)</option></select></div>
+    <div class="opt"><span>Date</span><select id="aDate">
+      <option value="MDY">Sep 14, 2026</option><option value="ISO">2026-09-14</option><option value="EU">14.09.2026</option></select></div>
+  </div>
+  <div class="sec">
+    <h4>Visible to the public</h4>
+    <div id="visList"></div>
+    <div class="hint">Hidden columns never leave wpDataTables, so no front end can show them.</div>
+  </div>
+  <div class="sec">
+    <h4>Editing permissions</h4>
+    <div class="opt"><span>Front-end editing for Editors</span><label class="sw"><input type="checkbox" id="aEdit" checked><span></span></label></div>
+    <div class="opt"><span>Editable: Units</span><label class="sw"><input type="checkbox" id="aEdUnits" checked><span></span></label></div>
+    <div class="opt"><span>Editable: Status</span><label class="sw"><input type="checkbox" id="aEdStatus" checked><span></span></label></div>
+    <div class="hint">Visitors can only read. Every change is logged and can be undone.</div>
+  </div>
+  <div class="sec" style="border:0">
+    <h4>Activity</h4>
+    <div id="activity"><div class="hint" style="margin:0">No edits yet. Try editing Units or Status in the grid.</div></div>
+  </div>
+</aside>
+</div>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"><span class="ck">✓</span><span id="toastMsg"></span></div>
+
+<script>
+(function(){
+'use strict';
+/* ---------- demo data (seeded, deterministic) ---------- */
+let seed=20261019;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
+const REGIONS=['North America','Europe','Asia Pacific','Latin America'];
+const CATALOG={Beverages:[['Chai',18],['Chang',19],['Ipoh Coffee',46],['Lakkalikööri',18]],Dairy:[['Camembert Pierrot',34],['Gorgonzola Telino',12.5],['Mascarpone Fabioli',32]],
+Confections:[['Chocolade',12.75],['Pavlova',17.45],['Teatime Biscuits',9.2]],Produce:[['Tofu',23.25],['Dried Apples',53],['Manjimup Dried Apples',53]],Seafood:[['Ikura',31],['Konbu',6],['Nord-Ost Matjes',25.89]]};
+CATALOG.Produce[2]=['Organic Dried Pears',30];
+const CATS=Object.keys(CATALOG);const RW=[1.25,1.1,.9,.6];
+const START=new Date(2025,9,1).getTime(),END=new Date(2026,8,30).getTime();
+const data=[];
+for(let i=0;i<720;i++){
+  const t=START+Math.floor(rnd()*(END-START));const d=new Date(t);
+  let r=0,x=rnd()*3.85;while(r<3&&x>RW[r]){x-=RW[r];r++}
+  const c=CATS[Math.floor(rnd()*CATS.length)];const p=CATALOG[c][Math.floor(rnd()*CATALOG[c].length)];
+  const season=1+0.35*Math.sin((d.getMonth()+2)/12*Math.PI*2)+ (d.getTime()-START)/(END-START)*0.4;
+  const units=Math.max(1,Math.round((4+rnd()*36)*season));
+  const s=rnd();const status=s<.78?'Paid':s<.93?'Pending':'Refunded';
+  data.push({id:'NW-'+(10001+i),date:iso(d),region:REGIONS[r],product:p[0],category:c,price:p[1],units,revenue:+(units*p[1]).toFixed(2),status});
+}
+data.sort((a,b)=>a.date<b.date?-1:1);data.forEach((r,i)=>r.id='NW-'+(10001+i));
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+
+/* ---------- state ---------- */
+const COLS=[{k:'id',l:'Order'},{k:'date',l:'Date'},{k:'region',l:'Region'},{k:'product',l:'Product'},{k:'category',l:'Category'},{k:'units',l:'Units',num:1},{k:'revenue',l:'Revenue',num:1},{k:'status',l:'Status'}];
+const PUBLIC_TOGGLES=['product','units','revenue','status'];
+const S={view:'dash',f:{region:'',category:'',from:data[0].date,to:data[data.length-1].date,q:''},sort:{k:'date',dir:-1},
+ adm:{cur:'USD',date:'MDY',hidden:new Set(),edit:true,edUnits:true,edStatus:true},gridN:0,cardN:0,log:[]};
+const $=s=>document.querySelector(s);
+const vis=k=>!S.adm.hidden.has(k);
+
+/* ---------- formatting (controlled in wp-admin) ---------- */
+function money(v){const c=S.adm.cur;
+  if(c==='EUR')return new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(v)+' €';
+  if(c==='GBP')return '£'+new Intl.NumberFormat('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
+  if(c==='CMP')return '$'+compact(v);
+  return '$'+new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format(v)}
+function moneyShort(v){const c=S.adm.cur;const n=compact(v);return c==='EUR'?n+' €':c==='GBP'?'£'+n:'$'+n}
+function compact(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(1)+'K':Math.round(v)+''}
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fdate(s){const [y,m,d]=s.split('-');if(S.adm.date==='ISO')return s;if(S.adm.date==='EU')return d+'.'+m+'.'+y;return MON[+m-1]+' '+(+d)+', '+y}
+const int=v=>new Intl.NumberFormat('en-US').format(v);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- query (what wpDataTables serves) ---------- */
+function query(){const f=S.f,q=f.q.trim().toLowerCase();
+  let rows=data.filter(r=>(!f.region||r.region===f.region)&&(!f.category||r.category===f.category)&&r.date>=f.from&&r.date<=f.to&&
+   (!q||COLS.some(c=>vis(c.k)&&String(r[c.k]).toLowerCase().includes(q))));
+  const k=S.sort.k,d=S.sort.dir;rows=rows.slice().sort((a,b)=>a[k]<b[k]?-d:a[k]>b[k]?d:0);return rows}
+
+/* ---------- controls ---------- */
+function fillSelect(el,items,all){el.innerHTML=(all?'<option value="">'+all+'</option>':'')+items.map(i=>{const a=Array.isArray(i)?i:[i,i];return '<option value="'+esc(a[0])+'">'+esc(a[1])+'</option>'}).join('')}
+fillSelect($('#fRegion'),REGIONS,'All regions');fillSelect($('#fCat'),CATS,'All categories');
+function fillSort(){const cur=S.sort.k;fillSelect($('#fSort'),COLS.filter(c=>vis(c.k)).map(c=>[c.k,c.l]));if(!vis(cur))S.sort.k='date';$('#fSort').value=S.sort.k;$('#fDir').textContent=S.sort.dir<0?'↓':'↑'}
+$('#fFrom').value=S.f.from;$('#fTo').value=S.f.to;$('#fFrom').min=$('#fTo').min=data[0].date;$('#fFrom').max=$('#fTo').max=data[data.length-1].date;
+$('#rowsTotal').textContent=int(data.length);
+const on=(id,ev,fn)=>$(id).addEventListener(ev,fn);
+on('#fRegion','change',e=>{S.f.region=e.target.value;refresh(true)});
+on('#fCat','change',e=>{S.f.category=e.target.value;refresh(true)});
+on('#fFrom','change',e=>{S.f.from=e.target.value||data[0].date;refresh(true)});
+on('#fTo','change',e=>{S.f.to=e.target.value||data[data.length-1].date;refresh(true)});
+let qt;on('#fQ','input',e=>{clearTimeout(qt);qt=setTimeout(()=>{S.f.q=e.target.value;refresh(true)},160)});
+on('#fSort','change',e=>{S.sort.k=e.target.value;refresh(true)});
+on('#fDir','click',()=>{S.sort.dir*=-1;refresh(true)});
+on('#fReset','click',()=>{S.f={region:'',category:'',from:data[0].date,to:data[data.length-1].date,q:''};S.sort={k:'date',dir:-1};
+  $('#fRegion').value='';$('#fCat').value='';$('#fFrom').value=S.f.from;$('#fTo').value=S.f.to;$('#fQ').value='';refresh(true)});
+document.querySelectorAll('.switcher button').forEach(b=>b.addEventListener('click',()=>{S.view=b.dataset.view;document.querySelectorAll('.switcher button').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-selected',x===b)});refresh(true)}));
+/* admin */
+$('#visList').innerHTML=PUBLIC_TOGGLES.map(k=>{const c=COLS.find(x=>x.k===k);return '<div class="opt"><span>'+c.l+'</span><label class="sw"><input type="checkbox" data-vis="'+k+'" checked aria-label="Show '+c.l+' to the public"><span></span></label></div>'}).join('');
+document.querySelectorAll('[data-vis]').forEach(i=>i.addEventListener('change',()=>{const k=i.dataset.vis;i.checked?S.adm.hidden.delete(k):S.adm.hidden.add(k);
+  toast(i.checked?COLS.find(c=>c.k===k).l+' is public again, every front end updated':COLS.find(c=>c.k===k).l+' hidden from the public in every front end');refresh(false)}));
+on('#aCur','change',e=>{S.adm.cur=e.target.value;toast('Currency format updated in wp-admin, applied everywhere');refresh(false)});
+on('#aDate','change',e=>{S.adm.date=e.target.value;toast('Date format updated in wp-admin, applied everywhere');refresh(false)});
+on('#aEdit','change',e=>{S.adm.edit=e.target.checked;toast(e.target.checked?'Front-end editing switched on for Editors':'Front-end editing switched off: the grid is now read-only');refresh(false)});
+on('#aEdUnits','change',e=>{S.adm.edUnits=e.target.checked;refresh(false)});
+on('#aEdStatus','change',e=>{S.adm.edStatus=e.target.checked;refresh(false)});
+
+/* ---------- toast & tooltip ---------- */
+let tt;function toast(m){$('#toastMsg').textContent=m;const t=$('#toast');t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2600)}
+const tip=$('#tip');function showTip(e,h){tip.innerHTML=h;tip.style.opacity=1;tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-34)+'px'}function hideTip(){tip.style.opacity=0}
+
+/* ---------- aggregations ---------- */
+function byMonth(rows,metric){const m=new Map();
+  for(let t=new Date(S.f.from.slice(0,7)+'-01');iso(t).slice(0,7)<=S.f.to.slice(0,7);t.setMonth(t.getMonth()+1))m.set(iso(t).slice(0,7),0);
+  rows.forEach(r=>{const k=r.date.slice(0,7);if(m.has(k))m.set(k,m.get(k)+r[metric])});return [...m.entries()]}
+function group(rows,key,metric){const m={};rows.forEach(r=>m[r[key]]=(m[r[key]]||0)+r[metric]);return Object.entries(m).sort((a,b)=>b[1]-a[1])}
+
+/* ---------- charts (inline SVG) ---------- */
+const NS='http://www.w3.org/2000/svg';
+function lineChart(el,series,fmt,label){const W=640,H=240,P={l:56,r:16,t:16,b:30};el.innerHTML='';
+  if(!series.length){el.innerHTML='<div class="empty">No data for these filters</div>';return}
+  const max=Math.max(1,...series.map(s=>s[1]))*1.12,iw=W-P.l-P.r,ih=H-P.t-P.b;
+  const X=i=>P.l+(series.length===1?iw/2:i*iw/(series.length-1)),Y=v=>P.t+ih-v/max*ih;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="'+label+'"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2563eb" stop-opacity=".28"/><stop offset="1" stop-color="#2563eb" stop-opacity="0"/></linearGradient></defs>';
+  for(let i=0;i<=4;i++){const v=max/4*i,y=Y(v);s+='<line x1="'+P.l+'" x2="'+(W-P.r)+'" y1="'+y+'" y2="'+y+'" stroke="#eef2f7"/><text x="'+(P.l-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="#94a3b8">'+fmt(v)+'</text>'}
+  const pts=series.map((p,i)=>[X(i),Y(p[1])]);
+  const path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  s+='<path d="'+path+' L'+pts[pts.length-1][0]+' '+(P.t+ih)+' L'+pts[0][0]+' '+(P.t+ih)+' Z" fill="url(#lg)"/>';
+  s+='<path d="'+path+'" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+  series.forEach((p,i)=>{const [y,m]=p[0].split('-');s+='<text x="'+X(i)+'" y="'+(H-10)+'" text-anchor="middle" font-size="11" fill="#94a3b8">'+MON[+m-1]+(m==='01'||i===0?" '"+y.slice(2):'')+'</text>';
+    s+='<circle cx="'+X(i)+'" cy="'+Y(p[1])+'" r="3.5" fill="#fff" stroke="#2563eb" stroke-width="2"/>'});
+  series.forEach((p,i)=>{const w=iw/Math.max(1,series.length-1);s+='<rect class="hit" data-i="'+i+'" x="'+(X(i)-w/2)+'" y="'+P.t+'" width="'+w+'" height="'+ih+'" fill="transparent"/>'});
+  s+='</svg>';el.innerHTML=s;
+  el.querySelectorAll('.hit').forEach(h=>{h.addEventListener('mousemove',e=>{const p=series[+h.dataset.i];const [y,m]=p[0].split('-');showTip(e,'<b>'+MON[+m-1]+' '+y+'</b> · '+fmt(p[1],true))});h.addEventListener('mouseleave',hideTip)})}
+function barChart(el,items,fmt,label){const W=420,row=40,H=items.length*row+10;el.innerHTML='';
+  if(!items.length){el.innerHTML='<div class="empty">No data</div>';return}
+  const max=Math.max(...items.map(i=>i[1]))||1;const colors=['#2563eb','#7c3aed','#0ea5e9','#14b8a6','#f59e0b'];
+  let s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="'+label+'">';
+  items.forEach((it,i)=>{const y=i*row+6,w=Math.max(2,(W-130)*it[1]/max);
+    s+='<text x="0" y="'+(y+12)+'" font-size="12" fill="#334155" font-weight="600">'+esc(it[0])+'</text>';
+    s+='<rect x="0" y="'+(y+18)+'" width="'+(W-130)+'" height="10" rx="5" fill="#f1f5f9"/>';
+    s+='<rect class="bar" data-i="'+i+'" x="0" y="'+(y+18)+'" width="'+w+'" height="10" rx="5" fill="'+colors[i%5]+'"><animate attributeName="width" from="0" to="'+w+'" dur=".5s"/></rect>';
+    s+='<text x="'+(W)+'" y="'+(y+27)+'" text-anchor="end" font-size="12" fill="#0f172a" font-weight="650">'+fmt(it[1])+'</text>'});
+  el.innerHTML=s+'</svg>';
+  el.querySelectorAll('.bar').forEach(b=>{b.addEventListener('mousemove',e=>{const it=items[+b.dataset.i];showTip(e,'<b>'+esc(it[0])+'</b> · '+fmt(it[1],true))});b.addEventListener('mouseleave',hideTip)})}
+function spark(vals){const W=120,H=30,max=Math.max(1,...vals);const pts=vals.map((v,i)=>(i*W/Math.max(1,vals.length-1)).toFixed(1)+','+(H-2-v/max*(H-4)).toFixed(1)).join(' ');
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" height="30" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linejoin="round"/></svg>'}
+
+/* ---------- views ---------- */
+function statusPill(s){return '<span class="status st-'+s+'">'+s+'</span>'}
+function metric(){return vis('revenue')?{k:'revenue',l:'Revenue',fmt:(v,full)=>full?money(v):moneyShort(v)}:{k:'units',l:'Units',fmt:v=>int(Math.round(v))}}
+
+function renderDash(rows){const v=$('#view');const M=metric();
+  const rev=rows.reduce((a,r)=>a+r.revenue,0),units=rows.reduce((a,r)=>a+r.units,0),paid=rows.filter(r=>r.status==='Paid').length;
+  const mid=S.f.from<S.f.to?null:null;
+  const ms=byMonth(rows,M.k);const last=ms.length>1?ms[ms.length-1][1]:0,prev=ms.length>1?ms[ms.length-2][1]:0;const ch=prev?((last-prev)/prev*100):0;
+  const lockCard=(l)=>'<div class="card kpi locked"><div class="l">'+l+'</div><div class="v">🔒 Hidden in wp-admin</div><div class="s">Not shared with this front end</div></div>';
+  let h='<div class="view"><div class="kpis">';
+  h+=vis('revenue')?'<div class="card kpi"><div class="l">Revenue</div><div class="v">'+moneyShort(rev)+'</div><div class="s '+(ch>=0?'up':'down')+'">'+(ch>=0?'▲ ':'▼ ')+Math.abs(ch).toFixed(1)+'% vs previous month</div></div>':lockCard('Revenue');
+  h+=vis('units')?'<div class="card kpi"><div class="l">Units sold</div><div class="v">'+int(units)+'</div><div class="s">across '+int(rows.length)+' orders</div></div>':lockCard('Units sold');
+  h+='<div class="card kpi"><div class="l">Orders</div><div class="v">'+int(rows.length)+'</div><div class="s">'+(rows.length?Math.round(paid/rows.length*100):0)+'% paid</div></div>';
+  h+=vis('revenue')?'<div class="card kpi"><div class="l">Average order</div><div class="v">'+money(rows.length?rev/rows.length:0)+'</div><div class="s">per order</div></div>':(vis('units')?'<div class="card kpi"><div class="l">Units per order</div><div class="v">'+(rows.length?(units/rows.length).toFixed(1):0)+'</div><div class="s">average</div></div>':lockCard('Average order'));
+  h+='</div><div class="grid2"><div class="card chartcard"><h3>'+M.l+' by month</h3><div class="sub">'+(vis('revenue')?'Line chart drawn by the AI builder, data from wpDataTables':'Revenue is hidden from the public, so the AI-built chart shows units')+'</div><div id="cLine"></div></div>';
+  h+='<div class="card chartcard"><h3>'+M.l+' by region</h3><div class="sub">Follows every filter</div><div id="cBar"></div><h3 style="margin-top:12px">'+M.l+' by category</h3><div id="cBar2" style="margin-top:6px"></div></div></div>';
+  const cols=COLS.filter(c=>['id','date','product','region','units','revenue','status'].includes(c.k)&&vis(c.k));
+  h+='<div class="card mini"><div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0"><b>Orders</b><span class="cat">Sorted by '+COLS.find(c=>c.k===S.sort.k).l+' '+(S.sort.dir<0?'↓':'↑')+' · top 6</span></div><table><thead><tr>'+cols.map(c=>'<th class="'+(c.num?'num':'')+'">'+c.l+'</th>').join('')+'</tr></thead><tbody>'+
+   rows.slice(0,6).map(r=>'<tr>'+cols.map(c=>'<td class="'+(c.num?'num':'')+'">'+cell(r,c.k)+'</td>').join('')+'</tr>').join('')+'</tbody></table>'+(rows.length?'':'<div class="empty">No orders match these filters</div>')+'</div></div>';
+  v.innerHTML=h;
+  lineChart($('#cLine'),ms,M.fmt,M.l+' by month');barChart($('#cBar'),group(rows,'region',M.k),M.fmt,M.l+' by region');barChart($('#cBar2'),group(rows,'category',M.k).slice(0,5),M.fmt,M.l+' by category')}
+
+function cell(r,k){if(k==='revenue')return money(r.revenue);if(k==='date')return fdate(r.date);if(k==='units')return int(r.units);if(k==='status')return statusPill(r.status);
+  if(k==='product')return '<b style="font-weight:600">'+esc(r.product)+'</b>';if(k==='id')return '<span class="cat">'+r.id+'</span>';return esc(r[k])}
+function editable(k){return S.adm.edit&&((k==='units'&&S.adm.edUnits)||(k==='status'&&S.adm.edStatus))}
+
+let gridRows=[];
+function renderGrid(rows,reset){const v=$('#view');gridRows=rows;if(reset)S.gridN=50;
+  const cols=COLS.filter(c=>vis(c.k));
+  v.innerHTML='<div class="view card" style="overflow:hidden"><div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)"><div><b>All orders</b> <span class="cat">· infinite scroll · '+int(rows.length)+' rows</span></div><div class="aib">'+(S.adm.edit?'✎ Click Units or Status to edit':'🔒 Read-only (editing off in wp-admin)')+'</div></div><div class="gridwrap" id="gw"><table class="bl"><thead><tr>'+
+   cols.map(c=>'<th data-k="'+c.k+'" class="'+(c.num?'num ':'')+(S.sort.k===c.k?'sorted':'')+'" aria-sort="'+(S.sort.k===c.k?(S.sort.dir<0?'descending':'ascending'):'none')+'">'+c.l+'<span class="ar">'+(S.sort.k===c.k?(S.sort.dir<0?'↓':'↑'):'↕')+'</span></th>').join('')+'</tr></thead><tbody id="gb"></tbody></table><div id="gl"></div></div></div>';
+  appendRows(0,S.gridN);
+  v.querySelectorAll('th').forEach(th=>th.addEventListener('click',()=>{const k=th.dataset.k;if(S.sort.k===k)S.sort.dir*=-1;else{S.sort.k=k;S.sort.dir=COLS.find(c=>c.k===k).num?-1:1}refresh(true)}));
+  const gw=$('#gw');let loading=false;
+  gw.addEventListener('scroll',()=>{if(loading||S.gridN>=gridRows.length)return;if(gw.scrollTop+gw.clientHeight>gw.scrollHeight-120){loading=true;
+    $('#gl').innerHTML='<div class="shimmer"></div><div class="shimmer" style="width:70%"></div><div class="loading">Loading more rows from wpDataTables…</div>';
+    setTimeout(()=>{const a=S.gridN;S.gridN=Math.min(gridRows.length,S.gridN+40);appendRows(a,S.gridN);loading=false;footer()},350)}});
+  footer();
+  function footer(){$('#gl').innerHTML=S.gridN>=gridRows.length?'<div class="loading">'+(gridRows.length?'All '+int(gridRows.length)+' rows loaded':'No orders match these filters')+'</div>':''}
+  $('#gb').addEventListener('click',onCellClick)}
+function rowHtml(r){return '<tr data-id="'+r.id+'">'+COLS.filter(c=>vis(c.k)).map(c=>'<td data-k="'+c.k+'" class="'+(c.num?'num ':'')+(editable(c.k)?'ed':'')+'"'+(editable(c.k)?' tabindex="0" title="Click to edit"':'')+'>'+cell(r,c.k)+'</td>').join('')+'</tr>'}
+function appendRows(a,b){$('#gb').insertAdjacentHTML('beforeend',gridRows.slice(a,b).map(rowHtml).join(''))}
+function onCellClick(e){const td=e.target.closest('td.ed');if(!td||td.querySelector('input,select'))return;const id=td.parentNode.dataset.id,k=td.dataset.k;const r=data.find(x=>x.id===id);
+  const old=r[k];let inp;
+  if(k==='units'){inp=document.createElement('input');inp.type='number';inp.min=0;inp.value=old}else{inp=document.createElement('select');['Paid','Pending','Refunded'].forEach(s=>{const o=document.createElement('option');o.textContent=s;if(s===old)o.selected=true;inp.appendChild(o)})}
+  td.innerHTML='';td.appendChild(inp);inp.focus();if(inp.select)inp.select();
+  let done=false;const commit=save=>{if(done)return;done=true;let nv=k==='units'?Math.max(0,parseInt(inp.value,10)||0):inp.value;
+    if(save&&nv!==old){applyEdit(r,k,nv,old,true)}else{td.innerHTML=cell(r,k)}};
+  inp.addEventListener('keydown',ev=>{if(ev.key==='Enter')commit(true);if(ev.key==='Escape')commit(false)});inp.addEventListener('blur',()=>commit(true));if(k==='status')inp.addEventListener('change',()=>commit(true))}
+function applyEdit(r,k,nv,old,logIt){r[k]=nv;if(k==='units')r.revenue=+(r.units*r.price).toFixed(2);
+  if(logIt){S.log.unshift({id:r.id,k,old,nv,t:Date.now()});S.log=S.log.slice(0,5)}
+  renderActivity();toast('Edited via wpDataTables, saved to your data');
+  const tr=document.querySelector('tr[data-id="'+r.id+'"]');
+  if(tr&&S.view==='grid'){tr.outerHTML=rowHtml(r);const n=document.querySelector('tr[data-id="'+r.id+'"] td[data-k="'+k+'"]');if(n)n.classList.add('flash');const rv=document.querySelector('tr[data-id="'+r.id+'"] td[data-k="revenue"]');if(rv&&k==='units')rv.classList.add('flash')}
+  else refresh(false)}
+function renderActivity(){const el=$('#activity');if(!S.log.length){el.innerHTML='<div class="hint" style="margin:0">No edits yet.</div>';return}
+  el.innerHTML=S.log.map((l,i)=>'<div class="act"><span>'+l.id+' · '+(l.k==='units'?'Units':'Status')+' '+esc(l.old)+' → <b>'+esc(l.nv)+'</b></span><button data-undo="'+i+'">Undo</button></div>').join('');
+  el.querySelectorAll('[data-undo]').forEach(b=>b.addEventListener('click',()=>{const l=S.log.splice(+b.dataset.undo,1)[0];const r=data.find(x=>x.id===l.id);r[l.k]=l.old;if(l.k==='units')r.revenue=+(r.units*r.price).toFixed(2);renderActivity();toast('Change undone in your data');refresh(false)}))}
+
+function renderCards(rows,reset){const v=$('#view');if(reset)S.cardN=24;const M=metric();
+  let h='<div class="view"><div class="regions">';
+  REGIONS.forEach(rg=>{const rr=rows.filter(r=>r.region===rg);const tot=rr.reduce((a,r)=>a+r[M.k],0);const ms=byMonth(rr,M.k).map(x=>x[1]);
+    h+='<div class="card rc"><div class="n">'+rg+'</div><div class="v">'+M.fmt(tot)+'</div><div class="m">'+M.l.toLowerCase()+' · '+int(rr.length)+' orders</div>'+spark(ms)+'</div>'});
+  h+='</div><div class="clist">';
+  rows.slice(0,S.cardN).forEach(r=>{h+='<div class="card oc"><div class="row"><span class="p">'+esc(r.product)+'</span>'+(vis('status')?statusPill(r.status):'')+'</div>'+
+    '<div class="big">'+(vis('revenue')?money(r.revenue):vis('units')?int(r.units)+' units':'—')+'</div>'+
+    '<div class="meta">'+esc(r.category)+' · '+esc(r.region)+(vis('units')&&vis('revenue')?' · '+int(r.units)+' units':'')+'</div><div class="row meta"><span>'+fdate(r.date)+'</span><span>'+r.id+'</span></div></div>'});
+  h+='</div>'+(rows.length?'':'<div class="empty">No orders match these filters</div>')+(S.cardN<rows.length?'<button class="more" id="more">Show more ('+int(rows.length-S.cardN)+' left)</button>':'')+'</div>';
+  v.innerHTML=h;const m=$('#more');if(m)m.addEventListener('click',()=>{S.cardN+=24;renderCards(rows,false)})}
+
+function refresh(reset){fillSort();const rows=query();
+  if(S.view==='dash')renderDash(rows);else if(S.view==='grid'){const keep=!reset&&$('#gw')?$('#gw').scrollTop:0;renderGrid(rows,reset||!S.gridN);if(keep)$('#gw').scrollTop=keep}else renderCards(rows,reset||!S.cardN)}
+refresh(true);
+})();
+</script>
+</body>
+</html>

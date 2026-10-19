@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IvyForms · Headless forms (prototype)</title>
+<style>
+:root{--teal:#00a19a;--teal-d:#008a84;--teal-l:#e3f5f4;--ink:#1f2733;--muted:#6b7684;--line:#e2e7ee;--bg:#f7f9fc;--red:#d63c3c;--green:#1d7a3e}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 18px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap;position:sticky;top:0;z-index:5}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700}.logo svg{width:24px;height:24px}.sp{flex:1}
+.badge{background:#fff4d6;color:#7a5a00;border:1px solid #f1d98a;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600}
+.seg{display:flex;background:#eef1f4;border-radius:8px;padding:3px;flex-wrap:wrap}.seg button{border:0;background:none;padding:7px 13px;border-radius:6px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer}.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+main{max-width:1280px;margin:0 auto;padding:18px;display:grid;grid-template-columns:1fr 360px;gap:18px}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.muted{color:var(--muted)}.small{font-size:12.5px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;box-shadow:0 1px 3px rgba(33,40,50,.05)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:7px 12px;font:inherit;font-weight:600;cursor:pointer}.btn.sm{padding:5px 10px;font-size:12.5px}.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}
+.frame{border-radius:12px;overflow:hidden;box-shadow:0 10px 34px rgba(20,30,40,.14);border:1px solid var(--line);background:#fff}
+.chrome{background:#eceff3;padding:8px 12px;display:flex;align-items:center;gap:8px}.chrome i{width:10px;height:10px;border-radius:50%;background:#d0d5dc;display:inline-block}.url{flex:1;background:#fff;border-radius:6px;padding:4px 10px;font-size:12px;color:var(--muted)}
+.eng{display:inline-flex;align-items:center;gap:6px;background:var(--teal);color:#fff;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:600}
+/* site themes */
+.site{padding:0;min-height:520px;transition:background .25s}
+.site .nav{display:flex;justify-content:space-between;align-items:center;padding:14px 26px}
+.site .body{padding:22px 26px 30px;max-width:620px}
+.site h1{margin:0 0 6px}.site .sub{margin:0 0 18px}
+.site .f{margin-bottom:13px}.site label.l{display:block;margin-bottom:5px}
+.site input,.site select,.site textarea{width:100%;font:inherit}
+.site .two{display:flex;gap:12px}.site .two>div{flex:1}
+.site .er{font-size:12.5px;margin-top:4px;display:none}.site .f.bad .er{display:block}
+.site .cb{display:flex;gap:8px;align-items:center}
+.site .cb input{width:auto}
+.site .done{display:none;padding:16px;border-radius:10px;margin-top:10px}
+.hp{position:absolute;left:-9999px}
+/* saas */
+.t-saas{background:#fff;color:#111827;font-family:-apple-system,"Segoe UI",Roboto,sans-serif}
+.t-saas .nav{border-bottom:1px solid #eef0f3}.t-saas .nav b{font-size:17px}.t-saas .nav b span{color:#6366f1}.t-saas .nav .lk{color:#6b7280;font-size:13px}
+.t-saas h1{font-size:28px;font-weight:700;letter-spacing:-.02em}.t-saas .sub{color:#6b7280}
+.t-saas label.l{font-size:13px;font-weight:600;color:#374151}
+.t-saas input,.t-saas select,.t-saas textarea{border:1px solid #d1d5db;border-radius:8px;padding:10px 12px;background:#fff}
+.t-saas .go{background:#6366f1;color:#fff;border:0;border-radius:8px;padding:11px 20px;font-weight:600;cursor:pointer;font:inherit}
+.t-saas .f.bad input,.t-saas .f.bad select{border-color:#ef4444}.t-saas .er{color:#ef4444}.t-saas .done{background:#eef2ff;color:#3730a3}
+/* cafe */
+.t-cafe{background:#f7efe4;color:#5a3a22;font-family:Georgia,"Times New Roman",serif}
+.t-cafe .nav{border-bottom:1px solid #e7d9c4}.t-cafe .nav b{font-size:20px}.t-cafe .nav .lk{font-size:13px;color:#7a5a40}
+.t-cafe h1{font-size:30px;font-weight:400}.t-cafe .sub{color:#7a5a40}
+.t-cafe label.l{font-size:14px}
+.t-cafe input,.t-cafe select,.t-cafe textarea{background:#fffaf2;border:1.5px solid #d9c3a3;border-radius:22px;padding:9px 16px;color:#5a3a22}
+.t-cafe textarea{border-radius:16px}
+.t-cafe .go{background:#b5653a;color:#fff;border:0;border-radius:24px;padding:11px 26px;cursor:pointer;font:inherit;font-size:15px}
+.t-cafe .f.bad input,.t-cafe .f.bad select{border-color:#c0392b}.t-cafe .er{color:#c0392b;font-style:italic}.t-cafe .done{background:#efe0c8}
+/* dark */
+.t-dark{background:#0f1115;color:#e8e8ea;font-family:-apple-system,"Segoe UI",Roboto,sans-serif}
+.t-dark .nav{border-bottom:1px solid #23262d}.t-dark .nav b{letter-spacing:.1em}.t-dark .nav b span{color:#7cf2c9}.t-dark .nav .lk{color:#8b8f99;font-size:12px}
+.t-dark h1{font-size:30px;font-weight:800}.t-dark .sub{color:#8b8f99}
+.t-dark label.l{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8b8f99}
+.t-dark input,.t-dark select,.t-dark textarea{background:transparent;border:0;border-bottom:1.5px solid #3a3e47;padding:8px 0;color:#e8e8ea;border-radius:0}
+.t-dark select option{background:#0f1115}
+.t-dark .go{background:#7cf2c9;color:#0f1115;border:0;border-radius:4px;padding:11px 22px;font-weight:800;cursor:pointer;font:inherit}
+.t-dark .f.bad input,.t-dark .f.bad select{border-color:#ff6b6b}.t-dark .er{color:#ff6b6b}.t-dark .done{background:#1a2a25;color:#7cf2c9}
+/* side panel */
+.side h3{margin:0 0 4px;font-size:15px}.chk{list-style:none;padding:0;margin:10px 0}.chk li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f0f2f5}
+.st{width:20px;height:20px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;background:#eef1f4;color:var(--muted)}
+.st.ok{background:#dff3e7;color:var(--green)}.st.bad{background:#fde3e3;color:var(--red)}.st.run{border:2px solid var(--teal);border-top-color:transparent;background:none;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.log{background:#11161c;color:#cfe9e6;border-radius:8px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;min-height:90px;max-height:200px;overflow:auto;white-space:pre-wrap}
+.log .w{color:#ffb4a8}.log .g{color:#7cf2c9}
+.ent{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #f0f2f5;font-size:13px}.src{font-size:11px;border-radius:10px;padding:2px 7px;background:#eef1f4;color:var(--muted);white-space:nowrap}.src.ag{background:#ede7ff;color:#5b3fd0}
+details{margin-top:10px}summary{cursor:pointer;font-weight:600;font-size:13px}.desc{font-size:12.5px;background:#f6f8fa;border-radius:8px;padding:10px;margin-top:6px;line-height:1.5}
+/* agent tab */
+#agentTab{display:none}
+.agent{display:grid;grid-template-columns:1fr;gap:0}
+.ac{background:#212121;color:#ececec;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;height:560px}
+.ach{padding:12px 16px;border-bottom:1px solid #333;display:flex;gap:8px;align-items:center;font-weight:600}
+.ams{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.am{max-width:86%;line-height:1.5;padding:9px 13px;border-radius:14px;animation:pop .2s}.am.u{background:#303030;align-self:flex-end;border-bottom-right-radius:4px}.am.a{align-self:flex-start;padding-left:0}
+.am.tool{align-self:flex-start;font-size:12px;color:#9a9a9a;padding:4px 0;font-style:italic}
+.am .box{background:#2a2a2a;border:1px solid #3a3a3a;border-radius:10px;padding:10px;margin-top:6px;font-size:13px}
+.am .box dl{display:grid;grid-template-columns:80px 1fr;gap:3px 8px;margin:0}.am .box dt{color:#9a9a9a}.am .box dd{margin:0}
+@keyframes pop{from{opacity:0;transform:translateY(4px)}}
+.acts{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid #333}.acts button{border:1px solid #555;background:#2a2a2a;color:#ececec;border-radius:18px;padding:7px 13px;font:inherit;font-size:13px;cursor:pointer}.acts button.pri{background:#ececec;color:#212121;border-color:#ececec}
+.consent{background:#1f3a35;border:1px solid #2e5e55;color:#c7f3ea;border-radius:10px;padding:10px;font-size:13px;margin-top:6px}
+@media(max-width:980px){main{grid-template-columns:1fr;padding:12px}.site .two{flex-direction:column;gap:0}.site .body{padding:18px}.site h1{font-size:24px}.ac{height:520px}}
+</style></head><body>
+<div class="topbar"><div class="logo"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#00a19a"/><path d="M9 22c0-7 4-12 13-13-1 8-5 13-13 13z" fill="#fff"/></svg>IvyForms · Headless forms</div><span class="badge">Prototype, sample data</span><span class="sp"></span>
+<div class="seg" id="tabs"><button class="on" data-t="designs">One form, three designs</button><button data-t="agent">AI agent submits for a visitor</button></div></div>
+<main>
+<section>
+<div id="designsTab">
+<div class="bar"><span class="small muted">Site design (generated by an AI site builder):</span><div class="seg" id="themes"><button class="on" data-th="saas">Minimal SaaS</button><button data-th="cafe">Warm café</button><button data-th="dark">Dark agency</button></div><span class="sp"></span><button class="btn sm" id="spam">🤖 Simulate a spam bot</button></div>
+<div class="frame"><div class="chrome"><i></i><i></i><i></i><span class="url" id="url"></span><span class="eng">⚙ Engine: IvyForms</span></div><div id="site" class="site"></div></div>
+<p class="small muted" style="margin-top:10px">The fields, rules and follow-up are defined once in IvyForms. Each design is drawn natively by the site, with no IvyForms styling loaded. Try submitting with a missing field or a wrong email, in any design.</p>
+</div>
+<div id="agentTab"><div class="agent"><div class="ac"><div class="ach">✦ Visitor's own AI assistant <span class="small" style="color:#9a9a9a;font-weight:400">· acting for the visitor, outside the site</span><span class="sp"></span><button class="btn sm" id="replay" style="background:#2a2a2a;color:#ececec;border-color:#555">↺ Replay</button></div><div class="ams" id="ams"></div><div class="acts" id="acts"></div></div>
+<p class="small muted" style="margin-top:10px">The assistant reads the form's plain-language description, asks only what is missing, asks the visitor's permission, and submits. IvyForms checks it with exactly the same rules as the site form.</p></div></div>
+</section>
+<aside class="card side"><h3>Handled by IvyForms</h3><div class="small muted">The same for every design and for AI agents</div>
+<ul class="chk" id="chk"></ul>
+<div class="small" style="font-weight:600;margin:4px 0 6px">Activity log</div><div class="log" id="log">Waiting for a submission…</div>
+<div class="small" style="font-weight:600;margin:14px 0 4px">Entries (<span id="ec">2</span>)</div><div id="ents"></div>
+<details><summary>Form description for AI builders and agents</summary><div class="desc"><b>Reserve a spot · launch night</b><br>Ask for: full name (required), email (required, valid address), date (required: Sat 14 Nov, Sat 21 Nov or Sat 28 Nov), number of guests (required, 1 to 10), notes (optional), newsletter (optional, off unless the person says yes).<br>After sending: the person gets a confirmation email; the owner is notified; subscribers are added to the newsletter list.<br>Agents: only submit with the person's permission, and tell them the result.</div></details>
+</aside>
+</main>
+<script>
+(function(){
+var $=function(s){return document.querySelector(s)},$$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+var FORM={fields:[{k:"name",l:"Full name",t:"text",req:1},{k:"email",l:"Email",t:"email",req:1},{k:"date",l:"Date",t:"select",req:1,o:["Sat 14 Nov","Sat 21 Nov","Sat 28 Nov"]},{k:"guests",l:"Guests",t:"number",req:1,min:1,max:10},{k:"notes",l:"Notes",t:"textarea"},{k:"news",l:"Send me news about future events",t:"check"}]};
+var COPY={saas:{url:"flowly.example/launch",brand:'<b>flowly<span>.</span></b>',links:"Product · Pricing · Docs · Sign in",h:"Join the Flowly launch night",sub:"An evening of demos and Q&A with the team.",btn:"Reserve my spot"},
+cafe:{url:"copperkettle.example/events",brand:"<b>☕ Copper Kettle Café</b>",links:"Menu · Events · Visit us",h:"Launch night at the Kettle",sub:"Our new autumn menu, live music and something warm.",btn:"Save me a seat ☕"},
+dark:{url:"northbeam.example/events",brand:"<b>NORTHBEAM<span>.</span></b>",links:"WORK · STUDIO · CONTACT",h:"Reserve a seat at our launch night",sub:"Talks, drinks and a few surprises. Limited places.",btn:"Reserve my seat →"}};
+var theme="saas",entries=[{n:"Marko P.",d:"Sat 14 Nov",g:2,s:"Café design"},{n:"Lena K.",d:"Sat 21 Nov",g:4,s:"SaaS design"}],t0=Date.now();
+var LABEL={saas:"Minimal SaaS design",cafe:"Warm café design",dark:"Dark agency design"};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function field(f){var i;
+ if(f.t==="select")i='<select name="'+f.k+'"><option value="">Choose a date</option>'+f.o.map(function(o){return"<option>"+o+"</option>"}).join("")+"</select>";
+ else if(f.t==="textarea")i='<textarea name="'+f.k+'" rows="2" placeholder="Anything we should know?"></textarea>';
+ else if(f.t==="check")return'<div class="f"><label class="cb"><input type="checkbox" name="'+f.k+'"> '+f.l+'</label></div>';
+ else i='<input type="'+f.t+'" name="'+f.k+'"'+(f.t==="number"?' min="1" max="10" placeholder="1–10"':"")+'>';
+ return'<div class="f" data-k="'+f.k+'"><label class="l">'+f.l+(f.req?" *":"")+'</label>'+i+'<div class="er"></div></div>'}
+function renderSite(){var c=COPY[theme],F=FORM.fields;
+ $("#url").textContent=c.url;
+ $("#site").className="site t-"+theme;
+ $("#site").innerHTML='<div class="nav">'+c.brand+'<span class="lk">'+c.links+'</span></div><div class="body"><h1>'+c.h+'</h1><p class="sub">'+c.sub+'</p><form id="sf" novalidate>'+field(F[0])+field(F[1])+'<div class="two"><div>'+field(F[2])+'</div><div>'+field(F[3])+'</div></div>'+field(F[4])+field(F[5])+'<input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><button class="go" type="submit">'+c.btn+'</button></form><div class="done" id="done"></div></div>';
+ $("#sf").onsubmit=function(e){e.preventDefault();var fd=new FormData(this),d={};FORM.fields.forEach(function(f){d[f.k]=f.t==="check"?!!fd.get(f.k):(fd.get(f.k)||"").trim()});d._trap=fd.get("website")||"";submit(d,LABEL[theme],this)}}
+// the one shared validation used by every front end and by agents
+function validate(d){var e={};
+ if(!d.name)e.name="Please enter your name.";
+ if(!d.email)e.email="Please enter your email.";else if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(d.email))e.email="That email doesn't look right.";
+ if(!d.date)e.date="Please choose a date.";else if(FORM.fields[2].o.indexOf(d.date)<0)e.date="Choose one of the available dates.";
+ var g=+d.guests;if(!d.guests)e.guests="How many guests?";else if(!(g>=1&&g<=10)||g!==Math.floor(g))e.guests="1 to 10 guests per booking.";
+ return e}
+var STEPS=[["val","Validation","Same rules for every design and agent"],["spam","Spam check","Hidden trap field and timing"],["save","Entry saved","Stored in IvyForms entries"],["note","Notifications sent","Owner alert and confirmation email"],["int","Integrations","Newsletter list · Google Sheets"]];
+function resetChk(){$("#chk").innerHTML=STEPS.map(function(s){return'<li data-s="'+s[0]+'"><span class="st">•</span><div><b>'+s[1]+'</b><div class="small muted">'+s[2]+'</div></div></li>'}).join("")}
+function setSt(k,cls,sym,sub){var li=$('#chk li[data-s="'+k+'"]');var st=li.querySelector(".st");st.className="st "+cls;st.textContent=sym||"";if(sub)li.querySelector(".small").textContent=sub}
+function ts(){var d=new Date();return d.toTimeString().slice(0,8)}
+function log(t,c){var l=$("#log");if(l._fresh!==true){l.innerHTML="";l._fresh=true}l.innerHTML+='<span class="'+(c||"")+'">'+ts()+"  "+esc(t)+"</span>\n";l.scrollTop=l.scrollHeight}
+function newLog(){$("#log")._fresh=false}
+function submit(d,source,form,cb){resetChk();newLog();log("Submission received from: "+source);
+ var seq=[],errs=validate(d);
+ seq.push(function(n){setSt("val","run");setTimeout(function(){var k=Object.keys(errs);
+  if(form){$$("#sf .f").forEach(function(x){var kk=x.getAttribute("data-k");x.classList.toggle("bad",!!errs[kk]);var er=x.querySelector(".er");if(er)er.textContent=errs[kk]||""})}
+  if(k.length){setSt("val","bad","✕","Rejected: "+k.length+" problem(s), shown to the visitor");k.forEach(function(x){log("Validation: "+x+" — "+errs[x],"w")});log("Nothing saved. Errors returned to the front end.","w");cb&&cb(errs);return}
+  setSt("val","ok","✓");log("Validation passed (5 rules)","g");n()},420)});
+ seq.push(function(n){setSt("spam","run");setTimeout(function(){
+  if(d._trap){setSt("spam","bad","✕","Blocked: hidden trap field was filled");log("Spam check: blocked (trap field filled, sent 0.4s after load)","w");log("Silently discarded. No entry, no notifications.","w");if(form){$("#done").style.display="block";$("#done").textContent="Thanks!  (the bot sees a normal thank-you, but nothing is saved)"};cb&&cb({spam:1});return}
+  setSt("spam","ok","✓","Passed: human timing, trap empty");log("Spam check: passed","g");n()},420)});
+ seq.push(function(n){setSt("save","run");setTimeout(function(){entries.unshift({n:d.name,d:d.date,g:+d.guests,s:source});renderEnts();setSt("save","ok","✓","Entry #"+(1040+entries.length)+" saved");log("Entry #"+(1040+entries.length)+" saved: "+d.name+", "+d.date+", "+d.guests+" guest(s)","g");n()},380)});
+ seq.push(function(n){setSt("note","run");setTimeout(function(){setSt("note","ok","✓","Owner alert + confirmation to "+d.email);log("Notification → owner@example.com");log("Confirmation email → "+d.email);n()},380)});
+ seq.push(function(n){setSt("int","run");setTimeout(function(){setSt("int","ok","✓",d.news?"Added to newsletter list · row added to sheet":"Row added to sheet · newsletter skipped (no opt-in)");if(d.news)log("Newsletter list: subscribed "+d.email);log("Google Sheets: row appended");log("Done in 1.9 s","g");
+  if(form){$("#sf").style.display="none";$("#done").style.display="block";$("#done").innerHTML="✓ Thanks, "+esc(d.name.split(" ")[0])+"! You're booked for "+esc(d.date)+". A confirmation is on its way. <a href='#' id='again' style='color:inherit'>Submit another</a>";$("#again").onclick=function(e){e.preventDefault();renderSite()}}
+  cb&&cb(null)},380)});
+ var i=0;(function next(){if(i<seq.length)seq[i++](next)})()}
+function renderEnts(){$("#ec").textContent=entries.length;$("#ents").innerHTML=entries.slice(0,5).map(function(e,i){return'<div class="ent"><b style="flex:1">'+esc(e.n)+'</b><span class="muted small">'+esc(e.d)+" · "+e.g+'</span><span class="src'+(/agent/i.test(e.s)?" ag":"")+'">'+esc(e.s)+'</span></div>'}).join("")}
+$$("#themes button").forEach(function(b){b.onclick=function(){$$("#themes button").forEach(function(x){x.classList.toggle("on",x===b)});theme=b.dataset.th;renderSite()}});
+$("#spam").onclick=function(){renderSite();var f=$("#sf");f.name.value="Cheap SEO Services";f.email.value="seo@spam.example";f.date.value="Sat 14 Nov";f.guests.value="1";f.website.value="http://spam.example";f.requestSubmit?f.requestSubmit():f.dispatchEvent(new Event("submit"))};
+$$("#tabs button").forEach(function(b){b.onclick=function(){$$("#tabs button").forEach(function(x){x.classList.toggle("on",x===b)});$("#designsTab").style.display=b.dataset.t==="designs"?"block":"none";$("#agentTab").style.display=b.dataset.t==="agent"?"block":"none";if(b.dataset.t==="agent"&&!$("#ams").children.length)startAgent()}});
+// agent tab
+var ag=0;
+function am(cls,h){var d=document.createElement("div");d.className="am "+cls;d.innerHTML=h;$("#ams").appendChild(d);$("#ams").scrollTop=1e6;return d}
+function acts(list){$("#acts").innerHTML="";list.forEach(function(a){var b=document.createElement("button");b.textContent=a[0];if(a[2])b.className="pri";b.onclick=function(){$("#acts").innerHTML="";a[1]()};$("#acts").appendChild(b)})}
+function later(ms,f){var g=ag;setTimeout(function(){if(g===ag)f()},ms)}
+var AD={};
+function startAgent(){ag++;$("#ams").innerHTML="";$("#acts").innerHTML="";AD={name:"",email:"ana.p@example.com",date:"Sat 21 Nov",guests:"12",notes:"",news:false};
+ am("u","Book 12 seats at the Copper Kettle launch night on the 21st for my book club. Use ana.p@example.com.");
+ later(600,function(){am("tool","Searching… found copperkettle.example → reading “Reserve a spot” form description")});
+ later(1300,function(){am("a","I found the café's booking form. It needs your <b>full name</b>, email, a date and the number of guests. What name should I use?");acts([["Ana Petrović",function(){am("u","Ana Petrović");AD.name="Ana Petrović";review()},true]])})}
+function review(){later(500,function(){var b=am("a","Here's what I'd send to Copper Kettle Café:<div class='box'><dl><dt>Name</dt><dd>"+esc(AD.name)+"</dd><dt>Email</dt><dd>"+AD.email+"</dd><dt>Date</dt><dd>"+AD.date+"</dd><dt>Guests</dt><dd>"+AD.guests+"</dd><dt>Newsletter</dt><dd>No</dd></dl></div><div class='consent'>🔒 I'll only submit with your permission. The café will receive these details.</div>");
+ acts([["Allow and submit",function(){am("u","Yes, submit it.");send()},true],["Cancel",function(){am("u","Cancel.");later(300,function(){am("a","Okay, nothing was sent.");acts([["Start again",startAgent]])})}]])})}
+function send(){later(300,function(){am("tool","Submitting to the café's form (permission given at "+ts().slice(0,5)+")…")});
+ later(600,function(){submit(AD,"AI agent for visitor",null,function(err){
+  if(err&&err.guests){later(300,function(){am("tool","Form answered: “Guests: 1 to 10 guests per booking.”");am("a","The café only takes <b>up to 10 guests per booking</b>. Should I book 10 and add a note asking about 2 more seats?");acts([["Yes, 10 + a note",function(){am("u","Yes, do that.");AD.guests="10";AD.notes="Book club, 12 people in total. Could 2 more join?";later(300,function(){am("a","Updated: 10 guests, with a note about 2 more. Submitting with the same permission.")});send()},true],["No, cancel",function(){am("u","No, cancel.");later(300,function(){am("a","Okay, nothing was booked.")})}]])})}
+  else if(!err){later(300,function(){am("a","✅ Done. You're booked for <b>Sat 21 Nov</b>, 10 guests, with a note about 2 more. The café sent a confirmation to ana.p@example.com.");acts([["Replay",startAgent]])})}
+ })})}
+$("#replay").onclick=startAgent;
+resetChk();renderEnts();renderSite();
+window.__theme=function(t){$('#themes button[data-th="'+t+'"]').click()};
+})();
+</script></body></html>

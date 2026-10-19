@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI-first Data Window · wpDataTables</title>
+<style>
+:root{--ink:#0f172a;--muted:#64748b;--line:#e5e9f0;--accent:#2563eb;--violet:#7c3aed;--r:14px;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;height:100%}body{font:14px/1.5 var(--font);color:var(--ink);background:#f6f7fb;display:flex;flex-direction:column}
+button,input{font:inherit;color:inherit}button{cursor:pointer}:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+.wpadmin{height:32px;background:#1d2327;color:#c3c4c7;font-size:12.5px;display:flex;align-items:center;gap:16px;padding:0 14px}.wpadmin b{color:#fff}
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;background:#fff;border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:10px;align-items:center;font-weight:700}.logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800}
+.classic{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 12px;font-size:13px;font-weight:600;color:#475569}
+.app{flex:1;display:grid;grid-template-columns:440px 1fr;min-height:0}
+.left{background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.flow{flex:1;overflow:auto;padding:26px 24px 10px}
+h1{font-size:26px;letter-spacing:-.02em;margin:0 0 4px}.lead{color:var(--muted);margin:0 0 18px}
+.starts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.st{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:left;background:#fff;transition:.15s}.st:hover{border-color:#a5b4fc;box-shadow:0 6px 18px rgba(37,99,235,.08)}
+.st b{display:block;font-size:13.5px}.st span{font-size:12px;color:var(--muted)}.st .e{font-size:18px}
+.st.on{border-color:#2563eb;background:#f5f7ff}
+.sugg{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin:6px 0 8px}
+.chips{display:flex;flex-direction:column;gap:7px}.chip{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;text-align:left;font-size:13.5px;transition:.15s}.chip:hover{background:#f5f7ff;border-color:#c7d2fe}
+.msg{margin-top:14px;animation:in .25s}@keyframes in{from{opacity:0;transform:translateY(5px)}to{opacity:1}}
+.msg.u{background:#2563eb;color:#fff;border-radius:14px 14px 4px 14px;padding:9px 13px;margin-left:40px}
+.msg.a{background:#f4f6fa;border-radius:4px 14px 14px 14px;padding:11px 13px}
+.msg.a ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:#334155}
+.composer{padding:12px 24px 18px;border-top:1px solid var(--line)}
+.cbox{display:flex;gap:8px;align-items:center;border:1.5px solid #c7d2fe;border-radius:14px;padding:6px 6px 6px 14px;box-shadow:0 6px 20px rgba(37,99,235,.08)}
+.cbox input{flex:1;border:0;outline:0;min-width:0}.mic{border:0;background:#f1f5f9;border-radius:10px;width:36px;height:36px}.go{border:0;background:#2563eb;color:#fff;border-radius:10px;width:36px;height:36px;font-size:16px}
+.guided{font-size:12px;color:var(--muted);margin-top:8px;display:flex;justify-content:space-between}.guided a{color:var(--accent);font-weight:600;cursor:pointer}
+.right{padding:22px 26px;overflow:auto;min-height:0}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.ph h2{margin:0;font-size:16px}
+.tag{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:#f1f5f9;color:#475569}.tag.live{background:#ecfdf5;color:#047857}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:0 6px 24px rgba(15,23,42,.05)}
+.empty{height:420px;display:grid;place-items:center;text-align:center;color:var(--muted);background:repeating-linear-gradient(45deg,#fafbfd,#fafbfd 10px,#f5f7fb 10px,#f5f7fb 20px)}
+.empty .ic{font-size:44px;opacity:.5}
+.out{padding:16px 18px}.out h3{margin:0 0 2px;font-size:15px}.out .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;background:#f8fafc;color:#475569;font-weight:600;padding:9px 12px;border-bottom:1px solid var(--line)}td{padding:8px 12px;border-bottom:1px solid #f1f5f9;font-variant-numeric:tabular-nums}
+.num{text-align:right!important}
+.bar{display:flex;gap:8px;margin-top:14px}.btn{border:0;border-radius:9px;padding:9px 16px;font-weight:600}.btn.p{background:#2563eb;color:#fff}.btn.s{background:#fff;border:1px solid var(--line)}
+.alts{display:flex;gap:6px;margin:4px 0 8px}.alt{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600;color:#475569}.alt.on{background:#0f172a;color:#fff;border-color:#0f172a}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#0f172a;color:#fff;padding:11px 16px;border-radius:12px;opacity:0;transition:.25s;font-size:13px}.toast.show{opacity:1;transform:translateX(-50%)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:#475569;margin-top:6px}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+svg text{font-family:var(--font)}
+</style>
+</head>
+<body>
+<div class="wpadmin"><b>Ⓦ</b><span>Northwind Demo</span><span>+ New</span></div>
+<header class="top"><div class="brand"><div class="logo">wp</div>wpDataTables · Data Window</div><button class="classic" id="classic">Open the classic editor</button></header>
+<div class="app">
+<section class="left">
+  <div class="flow" id="flow">
+    <h1>What's on your mind to build today?</h1>
+    <p class="lead">Describe the table or chart you want. It appears live on the right, and nothing goes public until you save.</p>
+    <div class="starts" id="starts">
+      <button class="st on" data-src="orders"><span class="e">🛒</span><b>Shop orders</b><span>720 orders on this site</span></button>
+      <button class="st" data-src="forms"><span class="e">📝</span><b>Form entries</b><span>Contact form · 214 entries</span></button>
+      <button class="st" data-src="sheet"><span class="e">📄</span><b>Google Sheet or file</b><span>Paste a link or drop a file</span></button>
+      <button class="st" data-src="tables"><span class="e">▦</span><b>Existing tables</b><span>12 tables on this site</span></button>
+    </div>
+    <div class="sugg">Try asking</div>
+    <div class="chips" id="chips"></div>
+    <div id="conv"></div>
+  </div>
+  <form class="composer" id="form" autocomplete="off">
+    <div class="cbox"><input id="inp" placeholder="e.g. revenue by region as a chart" aria-label="Describe your table or chart"><button type="button" class="mic" title="Voice input (demo)" aria-label="Voice input">🎙</button><button class="go" aria-label="Build">↑</button></div>
+    <div class="guided"><span>Using: <b id="srcName">Shop orders</b></span><a id="guided">Prefer questions? Guided mode</a></div>
+  </form>
+</section>
+<section class="right">
+  <div class="ph"><h2>Live preview</h2><span class="tag" id="state">Empty</span></div>
+  <div id="stage" class="card empty"><div><div class="ic">✦</div><p><b>Your table or chart will appear here</b></p><p>Pick a suggestion or type a request.</p></div></div>
+</section>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(function(){'use strict';
+const $=s=>document.querySelector(s);const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let seed=7;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+const REG=['North America','Europe','Asia Pacific','Latin America'],CAT={Beverages:['Chai','Chang','Ipoh Coffee'],Dairy:['Camembert Pierrot','Mascarpone'],Confections:['Chocolade','Pavlova','Teatime Biscuits'],Produce:['Tofu','Dried Apples'],Seafood:['Ikura','Konbu']};
+const PRICE={Chai:18,Chang:19,'Ipoh Coffee':46,'Camembert Pierrot':34,Mascarpone:32,Chocolade:12.75,Pavlova:17.45,'Teatime Biscuits':9.2,Tofu:23.25,'Dried Apples':53,Ikura:31,Konbu:6};
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const C=Object.keys(CAT);
+const data=[];for(let i=0;i<720;i++){const mi=Math.floor(rnd()*12),c=C[Math.floor(rnd()*C.length)],p=CAT[c][Math.floor(rnd()*CAT[c].length)],u=Math.round(3+rnd()*35*(1+.3*Math.sin(mi/2)));
+  const s=rnd();data.push({month:mi,region:REG[Math.min(3,Math.floor(rnd()*rnd()*5.2))],category:c,product:p,units:u,revenue:u*PRICE[p],status:s<.8?'Paid':s<.93?'Pending':'Refunded'})}
+const money=v=>'$'+Math.round(v).toLocaleString('en-US'),kfmt=v=>v>=1000?'$'+(v/1000).toFixed(0)+'K':'$'+Math.round(v);
+const SUGG=['Revenue by region as a bar chart','Monthly revenue trend as a line chart','Top 10 products by revenue as a table','Orders by status as a pie chart','Units by category in Europe'];
+SUGG.forEach(t=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent='“'+t+'”';b.addEventListener('click',()=>typeAndRun(t));$('#chips').appendChild(b)});
+document.querySelectorAll('.st').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.src!=='orders'){toast('Demo: only Shop orders is wired up in this prototype');return}}));
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2400)}
+$('#classic').addEventListener('click',()=>toast('The classic editor is always one click away'));$('#guided').addEventListener('click',()=>toast('Guided mode asks a few simple questions instead of a blank box'));
+$('.mic').addEventListener('click',()=>toast('Voice input works too (demo)'));
+let busy=false;
+function typeAndRun(t){if(busy)return;busy=true;const i=$('#inp');i.value='';let n=0;const iv=setInterval(()=>{i.value=t.slice(0,++n);if(n>=t.length){clearInterval(iv);setTimeout(()=>{busy=false;submit()},180)}},18)}
+$('#form').addEventListener('submit',e=>{e.preventDefault();submit()});
+function submit(){const t=$('#inp').value.trim();if(!t)return;$('#inp').value='';const conv=$('#conv');
+  conv.insertAdjacentHTML('beforeend','<div class="msg u">'+esc(t)+'</div>');const spec=parse(t);
+  conv.insertAdjacentHTML('beforeend','<div class="msg a"><b>'+spec.title+'</b><ul>'+spec.notes.map(n=>'<li>'+n+'</li>').join('')+'</ul></div>');
+  $('#flow').scrollTop=$('#flow').scrollHeight;render(spec)}
+function parse(t){const l=t.toLowerCase();const s={metric:/unit/.test(l)?'units':/order|count|status/.test(l)&&!/revenue/.test(l)?'orders':'revenue',group:'region',type:'table',limit:0,region:''};
+  if(/month|trend|over time/.test(l))s.group='month';else if(/categor/.test(l))s.group='category';else if(/product/.test(l))s.group='product';else if(/status/.test(l))s.group='status';
+  REG.forEach(r=>{if(l.includes(r.toLowerCase()))s.region=r});
+  if(/pie|donut/.test(l))s.type='pie';else if(/line|trend/.test(l))s.type='line';else if(/chart|bar|graph|column/.test(l))s.type='bar';else if(/table|top|list/.test(l))s.type='table';else s.type=s.group==='month'?'line':'bar';
+  const m=l.match(/top\s*(\d+)/);if(m)s.limit=+m[1];
+  const ml={revenue:'Revenue',units:'Units',orders:'Orders'}[s.metric],gl={region:'region',month:'month',category:'category',product:'product',status:'status'}[s.group];
+  s.title=(s.type==='table'?'Table: ':'Chart: ')+(s.limit?'Top '+s.limit+' ':'')+(s.group==='product'&&s.limit?'products by '+ml.toLowerCase():ml+' by '+gl)+(s.region?' · '+s.region:'');
+  s.notes=['Data: Shop orders (720 rows)'+(s.region?', only '+s.region:''),'Grouped by '+gl+', '+(s.metric==='orders'?'counting orders':'summing '+ml.toLowerCase()),s.type==='table'?'Table with each row\'s share of the total':'Suggested chart type: '+({bar:'bar chart',line:'line chart',pie:'pie chart'}[s.type])+'; one-click alternatives above the preview','Not public until you save'];
+  return s}
+function agg(s){const rows=data.filter(r=>!s.region||r.region===s.region);const m=new Map();
+  if(s.group==='month')MON.forEach((x,i)=>m.set(i,0));rows.forEach(r=>{const k=r[s.group];m.set(k,(m.get(k)||0)+(s.metric==='orders'?1:r[s.metric]))});
+  let out=[...m.entries()].map(([k,v])=>[s.group==='month'?MON[k]:k,v]);if(s.group!=='month')out.sort((a,b)=>b[1]-a[1]);if(s.limit)out=out.slice(0,s.limit);return out}
+const COLS=['#2563eb','#7c3aed','#0ea5e9','#14b8a6','#f59e0b','#ef4444','#84cc16','#ec4899','#64748b','#06b6d4'];
+let cur=null;
+function render(s){cur=s;const st=$('#stage');st.className='card out';$('#state').textContent='Draft · not public';$('#state').className='tag live';
+  const d=agg(s),fmt=v=>s.metric==='revenue'?money(v):Math.round(v).toLocaleString('en-US');
+  const alts=['table','bar','line','pie'].map(t=>'<button class="alt'+(t===s.type?' on':'')+'" data-t="'+t+'">'+({table:'▦ Table',bar:'▮ Bar',line:'⟋ Line',pie:'◔ Pie'}[t])+'</button>').join('');
+  let body='';
+  if(s.type==='table')body='<table><thead><tr><th>'+cap(s.group)+'</th><th class="num">'+cap(s.metric)+'</th><th class="num">Share</th></tr></thead><tbody>'+d.map(r=>'<tr><td>'+esc(r[0])+'</td><td class="num">'+fmt(r[1])+'</td><td class="num">'+(r[1]/d.reduce((a,x)=>a+x[1],0)*100).toFixed(1)+'%</td></tr>').join('')+'</tbody></table>';
+  else if(s.type==='bar')body=bar(d,s);else if(s.type==='line')body=line(d,s);else body=pie(d,fmt);
+  st.innerHTML='<h3>'+esc(s.title.replace(/^(Table|Chart): /,''))+'</h3><div class="sub">Shop orders · last 12 months · demo data</div><div class="alts">'+alts+'</div>'+body+
+   '<div class="bar"><button class="btn p" id="save">Save as wpDataTable</button><button class="btn s" id="undo">↶ Undo</button></div>';
+  st.querySelectorAll('.alt').forEach(b=>b.addEventListener('click',()=>{render(Object.assign({},s,{type:b.dataset.t,title:(b.dataset.t==='table'?'Table: ':'Chart: ')+s.title.replace(/^(Table|Chart): /,'')}))}));
+  $('#save').addEventListener('click',()=>{$('#state').textContent='Saved';toast('Saved as a normal wpDataTable, ready to place on a page')});
+  $('#undo').addEventListener('click',()=>{st.className='card empty';st.innerHTML='<div><div class="ic">↶</div><p><b>Undone</b></p><p>Ask for something else.</p></div>';$('#state').textContent='Empty';$('#state').className='tag'})}
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+function bar(d,s){const W=640,H=300,P={l:56,r:10,t:10,b:44},iw=W-P.l-P.r,ih=H-P.t-P.b,max=Math.max(...d.map(x=>x[1]))*1.1,bw=iw/d.length*.6;
+  let o='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Bar chart">';for(let i=0;i<=4;i++){const y=P.t+ih-ih*i/4;o+='<line x1="'+P.l+'" x2="'+(W-P.r)+'" y1="'+y+'" y2="'+y+'" stroke="#eef2f7"/><text x="'+(P.l-6)+'" y="'+(y+4)+'" font-size="11" text-anchor="end" fill="#94a3b8">'+(s.metric==='revenue'?kfmt(max*i/4):Math.round(max*i/4))+'</text>'}
+  d.forEach((r,i)=>{const x=P.l+iw/d.length*i+(iw/d.length-bw)/2,h=r[1]/max*ih;o+='<rect x="'+x+'" y="'+(P.t+ih-h)+'" width="'+bw+'" height="'+h+'" rx="5" fill="'+COLS[i%10]+'"><title>'+esc(r[0])+'</title></rect><text x="'+(x+bw/2)+'" y="'+(H-24)+'" font-size="11" text-anchor="middle" fill="#475569">'+esc(String(r[0]).length>13?String(r[0]).slice(0,12)+'…':r[0])+'</text>'});return o+'</svg>'}
+function line(d,s){const W=640,H=280,P={l:56,r:14,t:12,b:28},iw=W-P.l-P.r,ih=H-P.t-P.b,max=Math.max(...d.map(x=>x[1]))*1.12;const X=i=>P.l+i*iw/(d.length-1),Y=v=>P.t+ih-v/max*ih;
+  let o='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Line chart"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c3aed" stop-opacity=".25"/><stop offset="1" stop-color="#7c3aed" stop-opacity="0"/></linearGradient></defs>';
+  for(let i=0;i<=4;i++){const y=P.t+ih-ih*i/4;o+='<line x1="'+P.l+'" x2="'+(W-P.r)+'" y1="'+y+'" y2="'+y+'" stroke="#eef2f7"/><text x="'+(P.l-6)+'" y="'+(y+4)+'" font-size="11" text-anchor="end" fill="#94a3b8">'+(s.metric==='revenue'?kfmt(max*i/4):Math.round(max*i/4))+'</text>'}
+  const p=d.map((r,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(r[1]).toFixed(1)).join(' ');o+='<path d="'+p+' L'+X(d.length-1)+' '+(P.t+ih)+' L'+X(0)+' '+(P.t+ih)+'Z" fill="url(#g)"/><path d="'+p+'" fill="none" stroke="#7c3aed" stroke-width="2.5"/>';
+  d.forEach((r,i)=>{o+='<circle cx="'+X(i)+'" cy="'+Y(r[1])+'" r="3.5" fill="#fff" stroke="#7c3aed" stroke-width="2"><title>'+esc(r[0])+'</title></circle><text x="'+X(i)+'" y="'+(H-8)+'" font-size="11" text-anchor="middle" fill="#94a3b8">'+esc(String(r[0]).slice(0,10))+'</text>'});return o+'</svg>'}
+function pie(d,fmt){const tot=d.reduce((a,x)=>a+x[1],0),R=110,cx=150,cy=130;let a=-Math.PI/2,o='<div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap"><svg viewBox="0 0 300 260" width="300" role="img" aria-label="Pie chart">';
+  d.forEach((r,i)=>{const b=a+r[1]/tot*Math.PI*2,lg=b-a>Math.PI?1:0;o+='<path d="M'+cx+' '+cy+' L'+(cx+R*Math.cos(a))+' '+(cy+R*Math.sin(a))+' A'+R+' '+R+' 0 '+lg+' 1 '+(cx+R*Math.cos(b))+' '+(cy+R*Math.sin(b))+'Z" fill="'+COLS[i%10]+'" stroke="#fff" stroke-width="2"><title>'+esc(r[0])+'</title></path>';a=b});
+  o+='<circle cx="'+cx+'" cy="'+cy+'" r="58" fill="#fff"/><text x="'+cx+'" y="'+(cy+6)+'" text-anchor="middle" font-size="18" font-weight="700" fill="#0f172a">'+fmt(tot)+'</text></svg><div class="legend" style="flex-direction:column">'+d.map((r,i)=>'<span><i style="background:'+COLS[i%10]+'"></i>'+esc(r[0])+' · '+fmt(r[1])+' ('+(r[1]/tot*100).toFixed(0)+'%)</span>').join('')+'</div></div>';return o}
+})();
+</script>
+</body></html>
